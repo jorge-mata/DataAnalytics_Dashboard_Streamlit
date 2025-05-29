@@ -38,7 +38,7 @@ with st.sidebar:
 # Load your aggregated_df.csv
 csv_path = os.path.join(os.path.dirname(__file__), "aggregated_df.csv")
 
-st.markdown("## Importe total por mes y promedio mensual por trimestre (2024)")
+st.markdown("## Total amount per month and monthly average per quarter (2024)")
 importe_fig = get_importe_bokeh_figure(csv_path)
 st.bokeh_chart(importe_fig, use_container_width=True)
 

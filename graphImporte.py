@@ -54,7 +54,7 @@ def get_importe_bokeh_figure(csv_path):
 
     p = figure(x_range=FactorRange(*x_factors), height=500, tools=[bar_hover, line_hover],
                background_fill_color="#fafafa", toolbar_location=None,
-               title="Importe total por mes y promedio mensual por trimestre (2024)")
+               title="Total amount per month and monthly average per quarter (2024)")
 
     # 9. ColumnDataSource for bars with hover info
     bar_data = {
