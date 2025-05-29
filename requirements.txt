@@ -1,5 +1,5 @@
-streamlit
-streamlit-bokeh
+streamlit == 1.45.1
+bokeh == 2.4.3
 numpy
 pandas
 streamlit_option_menu == 0.4.0
