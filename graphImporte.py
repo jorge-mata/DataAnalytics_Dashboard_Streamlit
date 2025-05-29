@@ -1,8 +1,21 @@
 import os
 import pandas as pd
 from bokeh.models import FactorRange, HoverTool, ColumnDataSource
-from bokeh.palettes import Category10
 from bokeh.plotting import figure
+
+# Define your color palette (reuse from graphRisk.py if you want consistency)
+color_palette = {
+    "nx1" : "#401f71",
+    "nx2" : "#824d74",
+    "nx3" : "#be7b72",
+    "nx4" : "#fdaf7b",
+    "nx5" : "#ffffff",
+    "nx6" : "#5e3992",
+    "nx7" : "#986384",
+    "nx8" : "#d88876",
+    "nx9" : "#fbcda0",
+    "nx10": "#d9ccef"
+}
 
 def get_importe_bokeh_figure(csv_path):
     aggregated_df = pd.read_csv(csv_path)
@@ -37,8 +50,9 @@ def get_importe_bokeh_figure(csv_path):
     x_quarter_coords = [quarter_x_positions[q] for q in quarters_sorted if q in quarter_x_positions and q in quarterly_avg]
     y_quarter_values = [quarterly_avg[q] for q in quarters_sorted if q in quarter_x_positions and q in quarterly_avg]
 
-    # 7. Colors (usando Category10)
-    fill_color, line_color = Category10[4][2], Category10[4][3]
+    # 7. Colors (using color_palette)
+    fill_color = color_palette["nx3"]
+    line_color = color_palette["nx2"]
 
     # 8. Create figure with hover tools
     bar_hover = HoverTool(tooltips=[
@@ -54,7 +68,7 @@ def get_importe_bokeh_figure(csv_path):
 
     p = figure(x_range=FactorRange(*x_factors), height=500, tools=[bar_hover, line_hover],
                background_fill_color="#fafafa", toolbar_location=None,
-               title="Total amount per month and monthly average per quarter (2024)")
+               title="Importe total por mes y promedio mensual por trimestre (2024)")
 
     # 9. ColumnDataSource for bars with hover info
     bar_data = {
@@ -93,7 +107,7 @@ def get_importe_bokeh_figure(csv_path):
 
     line_renderer = p.line(x='x', y='y', source=line_source, color=line_color, line_width=3)
     scatter_renderer = p.scatter(x='x', y='y', source=line_source, size=10,
-              line_color=line_color, fill_color="white", line_width=3)
+              line_color=line_color, fill_color=color_palette["nx5"], line_width=3)
     line_hover.renderers = [line_renderer, scatter_renderer]
 
     # 11. Final aesthetics

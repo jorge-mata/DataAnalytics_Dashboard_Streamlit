@@ -10,7 +10,7 @@ from bokeh.plotting import figure
 
 from streamlit_option_menu import option_menu
 from graphImporte import get_importe_bokeh_figure
-from graphRisk import get_risk_bokeh_figure
+from graphRisk import get_risk_bokeh_figure, get_account_age_bokeh_figure_by_affiliation
 
 st.set_page_config(
     page_title = 'Streamlit Sample Dashboard Template',
@@ -38,13 +38,31 @@ with st.sidebar:
 # Load your aggregated_df.csv
 csv_path = os.path.join(os.path.dirname(__file__), "aggregated_df.csv")
 
-st.markdown("## Total amount per month and monthly average per quarter (2024)")
+st.markdown("## Importe total por mes y promedio mensual por trimestre (2024)")
 importe_fig = get_importe_bokeh_figure(csv_path)
 st.bokeh_chart(importe_fig, use_container_width=True)
 
-st.markdown("## Risk Client Counts and Percentage by Month (2024)")
-risk_fig = get_risk_bokeh_figure(csv_path)
+df = pd.read_csv(csv_path)
+years = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+years = ["All"] + [str(y) for y in sorted(years)]  # All options as strings
+selected_year_str = st.selectbox(
+    "Select Year", years, index=0
+)
+selected_year = "All" if selected_year_str == "All" else int(selected_year_str)
+
+st.markdown(f"## Risk Client Counts and Percentage by Month ({selected_year})")
+risk_fig = get_risk_bokeh_figure(csv_path, year=selected_year)
 st.bokeh_chart(risk_fig, use_container_width=True)
+
+# Year range selector for affiliation year
+df = pd.read_csv(csv_path)
+af_years = pd.to_datetime(df['fecha_afiliacion']).dt.year
+min_af_year, max_af_year = int(af_years.min()), int(af_years.max())
+af_year_range = st.slider("Select Affiliation Year Range", min_af_year, max_af_year, (min_af_year, max_af_year))
+
+st.markdown("## Unique Accounts by Account Age Group (Affiliation Year Filter)")
+account_age_aff_fig = get_account_age_bokeh_figure_by_affiliation(csv_path, year_range=af_year_range)
+st.bokeh_chart(account_age_aff_fig, use_container_width=True)
 
 # Leer KPIs desde el archivo JSON
 kpi_json_path = os.path.join(os.path.dirname(__file__), "kpis.json")

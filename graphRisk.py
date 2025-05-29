@@ -1,11 +1,29 @@
 import pandas as pd
 import calendar
+import numpy as np
 from bokeh.models import ColumnDataSource, HoverTool, LinearAxis, Range1d
 from bokeh.plotting import figure
 from bokeh.transform import dodge
 
-def get_risk_bokeh_figure(csv_path="aggregated_df.csv"):
+color_palette = {
+    "nx1" : "#401f71",
+    "nx2" : "#824d74",
+    "nx3" : "#be7b72",
+    "nx4" : "#fdaf7b",
+    "nx5" : "#ffffff",
+    "nx6" : "#5e3992",
+    "nx7" : "#986384",
+    "nx8" : "#d88876",
+    "nx9" : "#fbcda0",
+    "nx10": "#d9ccef"
+}
+
+def get_risk_bokeh_figure(csv_path="aggregated_df.csv", year=2024):
     aggregated_df = pd.read_csv(csv_path)
+
+    # Only filter if year is not None and not "All"
+    if 'year' in aggregated_df.columns and year not in (None, "All"):
+        aggregated_df = aggregated_df[aggregated_df['year'] == year]
 
     grouped = aggregated_df.groupby(['month', 'riskclient']).size().unstack(fill_value=0).reset_index()
     grouped.columns.name = None
@@ -22,15 +40,21 @@ def get_risk_bokeh_figure(csv_path="aggregated_df.csv"):
     grouped = grouped.sort_values('month')
     source = ColumnDataSource(grouped)
     months_str = grouped['months'].tolist()
-    y_max = grouped[['risk_0', 'risk_1']].values.max() * 1.1
+    y_max = grouped[['risk_0', 'risk_1']].values.max() * 1.1 if not grouped.empty else 1
+
+    # Use color_palette for graph colors
+    color_0 = color_palette["nx2"]   # e.g. for Risk Client = 0
+    color_1 = color_palette["nx3"]   # e.g. for Risk Client = 1
+    color_line = color_palette["nx4"]  # e.g. for percentage line
+    color_circle = color_palette["nx4"]
 
     p = figure(x_range=months_str, y_range=(0, y_max),
-               title="Risk Client Counts and Percentage by Month (2024)",
+               title=f"Risk Client Counts and Percentage by Month ({year if year not in (None, 'All') else 'All'})",
                height=400, width=800, toolbar_location="above",
                tools=["pan", "wheel_zoom", "box_zoom", "reset"])
 
     bar_0 = p.vbar(x=dodge('months', -0.2, range=p.x_range), top='risk_0', source=source,
-                   width=0.35, color="#718dbf", legend_label="Risk Client = 0",
+                   width=0.35, color=color_0, legend_label="Risk Client = 0",
                    name="risk_0")
     hover_bar_0 = HoverTool(
         tooltips=[
@@ -43,7 +67,7 @@ def get_risk_bokeh_figure(csv_path="aggregated_df.csv"):
         renderers=[bar_0]
     )
     bar_1 = p.vbar(x=dodge('months', 0.2, range=p.x_range), top='risk_1', source=source,
-                   width=0.35, color="#e84d60", legend_label="Risk Client = 1",
+                   width=0.35, color=color_1, legend_label="Risk Client = 1",
                    name="risk_1")
     hover_bar_1 = HoverTool(
         tooltips=[
@@ -57,10 +81,10 @@ def get_risk_bokeh_figure(csv_path="aggregated_df.csv"):
     )
     p.extra_y_ranges = {"percent": Range1d(start=0, end=100)}
     p.add_layout(LinearAxis(y_range_name="percent", axis_label="Risk Client Percentage (%)"), 'right')
-    line = p.line('months', 'risk_1_pct', source=source, line_width=3, color='#2ca02c',
+    line = p.line('months', 'risk_1_pct', source=source, line_width=3, color=color_line,
                   y_range_name="percent", legend_label="Risk Client = 1 (%)",
                   name="percentage_line")
-    circles = p.circle('months', 'risk_1_pct', source=source, size=10, color='#2ca02c',
+    circles = p.circle('months', 'risk_1_pct', source=source, size=10, color=color_circle,
                        y_range_name="percent", name="percentage_line")
     hover_line = HoverTool(
         tooltips=[
@@ -79,4 +103,115 @@ def get_risk_bokeh_figure(csv_path="aggregated_df.csv"):
     p.legend.orientation = "horizontal"
     p.xaxis.axis_label = "Month"
     p.yaxis[0].axis_label = "Count"
+    return p
+
+# --- New graph for external_account_id by account age group and year range ---
+
+def get_account_age_bokeh_figure(csv_path, year_range=None):
+    df = pd.read_csv(csv_path)
+    # Filter by year range if provided
+    if year_range and 'year' in df.columns:
+        df = df[(df['year'] >= year_range[0]) & (df['year'] <= year_range[1])]
+
+    # Assume 'account_age_years' column exists, otherwise compute from dates if available
+    if 'account_age_years' not in df.columns:
+        raise ValueError("Column 'account_age_years' not found in data.")
+
+    # Bin account ages
+    bins = [0, 1, 3, np.inf]
+    labels = ['< 1 year', '1-3 years', '> 3 years']
+    df['age_group'] = pd.cut(df['account_age_years'], bins=bins, labels=labels, right=False)
+
+    # Count unique accounts per group
+    grouped = df.groupby('age_group')['external_account_id'].nunique().reset_index()
+    grouped = grouped.rename(columns={'external_account_id': 'account_count'})
+
+    source = ColumnDataSource(grouped)
+
+    p = figure(x_range=labels, height=400, width=600,
+               title="Unique Accounts by Account Age Group",
+               toolbar_location=None, tools="")
+
+    bars = p.vbar(x='age_group', top='account_count', width=0.6, source=source,
+                  fill_color=color_palette["nx3"], line_color=color_palette["nx2"])
+
+    hover = HoverTool(tooltips=[
+        ("Age Group", "@age_group"),
+        ("Unique Accounts", "@account_count")
+    ], renderers=[bars])
+    p.add_tools(hover)
+
+    p.xgrid.grid_line_color = None
+    p.y_range.start = 0
+    p.xaxis.axis_label = "Account Age"
+    p.yaxis.axis_label = "Unique Accounts"
+    return p
+
+def get_account_age_bokeh_figure_by_affiliation(csv_path, year_range=None):
+    """
+    Plots unique external_account_id counts by account age group,
+    filtering by year extracted from 'fecha_afiliacion'.
+    """
+    df = pd.read_csv(csv_path)
+
+    # Ensure fecha_afiliacion exists and parse year
+    if 'fecha_afiliacion' not in df.columns:
+        raise ValueError("Column 'fecha_afiliacion' not found in data.")
+    df['afiliacion_year'] = pd.to_datetime(df['fecha_afiliacion']).dt.year
+
+    # Filter by year range if provided
+    if year_range:
+        df = df[(df['afiliacion_year'] >= year_range[0]) & (df['afiliacion_year'] <= year_range[1])]
+    
+    # Create a new column for account age in years
+    if 'account_age_years' not in df.columns:
+        if 'fecha_afiliacion' in df.columns:
+            df['fecha_afiliacion'] = pd.to_datetime(df['fecha_afiliacion'], errors='coerce')
+            df['account_age_years'] = (pd.Timestamp.now() - df['fecha_afiliacion']).dt.days / 365.25
+        else:
+            raise ValueError("Column 'account_age_years' or 'fecha_afiliacion' not found in data.")
+
+    # Assume 'account_age_years' column exists
+    if 'account_age_years' not in df.columns:
+        raise ValueError("Column 'account_age_years' not found in data.")
+
+    # Bin account ages
+    bins = [0, 1, 3, np.inf]
+    labels = ['< 1 year', '1-3 years', '> 3 years']
+    df['age_group'] = pd.cut(df['account_age_years'], bins=bins, labels=labels, right=False)
+
+    # Count unique accounts per group
+    grouped = df.groupby('age_group')['external_account_id'].nunique().reset_index()
+    grouped = grouped.rename(columns={'external_account_id': 'account_count'})
+
+    source = ColumnDataSource(grouped)
+
+    p = figure(
+        x_range=labels,
+        height=400,
+        width=600,
+        title="Unique Accounts by Account Age Group (Filtered by Affiliation Year)",
+        toolbar_location=None,
+        tools=""
+    )
+
+    bars = p.vbar(
+        x='age_group',
+        top='account_count',
+        width=0.6,
+        source=source,
+        fill_color=color_palette["nx3"],
+        line_color=color_palette["nx2"]
+    )
+
+    hover = HoverTool(tooltips=[
+        ("Age Group", "@age_group"),
+        ("Unique Accounts", "@account_count")
+    ], renderers=[bars])
+    p.add_tools(hover)
+
+    p.xgrid.grid_line_color = None
+    p.y_range.start = 0
+    p.xaxis.axis_label = "Account Age"
+    p.yaxis.axis_label = "Unique Accounts"
     return p
