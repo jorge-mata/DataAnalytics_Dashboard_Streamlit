@@ -1,7 +1,7 @@
 import pandas as pd
 import calendar
 import numpy as np
-from bokeh.models import ColumnDataSource, HoverTool, LinearAxis, Range1d
+from bokeh.models import ColumnDataSource, HoverTool, LinearAxis, Range1d, FactorRange
 from bokeh.plotting import figure
 from bokeh.transform import dodge
 
@@ -18,14 +18,14 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_risk_bokeh_figure(csv_path="aggregated_df.csv", year=2024):
-    aggregated_df = pd.read_csv(csv_path)
+def get_risk_bokeh_figure(csv_path, year="All", height=500, width=900):
+    df = pd.read_csv(csv_path)
 
     # Only filter if year is not None and not "All"
-    if 'year' in aggregated_df.columns and year not in (None, "All"):
-        aggregated_df = aggregated_df[aggregated_df['year'] == year]
+    if 'year' in df.columns and year not in (None, "All"):
+        df = df[df['year'] == year]
 
-    grouped = aggregated_df.groupby(['month', 'riskclient']).size().unstack(fill_value=0).reset_index()
+    grouped = df.groupby(['month', 'riskclient']).size().unstack(fill_value=0).reset_index()
     grouped.columns.name = None
 
     if 0 not in grouped.columns:
@@ -48,10 +48,16 @@ def get_risk_bokeh_figure(csv_path="aggregated_df.csv", year=2024):
     color_line = color_palette["nx4"]  # e.g. for percentage line
     color_circle = color_palette["nx4"]
 
-    p = figure(x_range=months_str, y_range=(0, y_max),
-               title=f"Risk Client Counts and Percentage by Month ({year if year not in (None, 'All') else 'All'})",
-               height=400, width=800, toolbar_location="above",
-               tools=["pan", "wheel_zoom", "box_zoom", "reset"])
+    x_factors = months_str  # Use months_str directly as x_factors
+
+    p = figure(
+        x_range=FactorRange(*x_factors),
+        height=height,
+        width=width,
+        title=f"Risk Client Counts and Percentage by Month ({year if year not in (None, 'All') else 'All'})",
+        toolbar_location="above",
+        tools=["pan", "wheel_zoom", "box_zoom", "reset"]
+    )
 
     bar_0 = p.vbar(x=dodge('months', -0.2, range=p.x_range), top='risk_0', source=source,
                    width=0.35, color=color_0, legend_label="Risk Client = 0",

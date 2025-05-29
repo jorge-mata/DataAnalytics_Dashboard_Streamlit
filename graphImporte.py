@@ -17,24 +17,30 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_importe_bokeh_figure(csv_path):
+def get_importe_bokeh_figure(csv_path, year="All", height=500, width=900):
     aggregated_df = pd.read_csv(csv_path)
 
-    # 1. Filter year 2024
-    df_2024 = aggregated_df[aggregated_df['year'] == 2024].copy()
+    # Filter by year if not "All"
+    if year != "All":
+        aggregated_df = aggregated_df[aggregated_df['year'] == int(year)].copy()
+
+    # If no data for selected year, return empty plot
+    if aggregated_df.empty:
+        p = figure(height=height, width=width, title=f"No data for year {year}")
+        return p
 
     # 2. Create labels like ("Q1", "1"), ("Q1", "2"), ...
-    df_2024['quarter_label'] = 'Q' + df_2024['quarter'].astype(str)
-    df_2024['month_str'] = df_2024['month'].astype(str)
-    df_2024['x'] = list(zip(df_2024['quarter_label'], df_2024['month_str']))
+    aggregated_df['quarter_label'] = 'Q' + aggregated_df['quarter'].astype(str)
+    aggregated_df['month_str'] = aggregated_df['month'].astype(str)
+    aggregated_df['x'] = list(zip(aggregated_df['quarter_label'], aggregated_df['month_str']))
 
     # 3. Group by (quarter, month) and sum importe
-    monthly_group = df_2024.groupby('x')['total_importe'].sum().reset_index()
+    monthly_group = aggregated_df.groupby('x')['total_importe'].sum().reset_index()
     monthly_group = monthly_group.sort_values('x')
     x_factors = list(monthly_group['x'])
 
     # 4. Group monthly and then average monthly by quarter
-    monthly_by_q = df_2024.groupby(['quarter_label', 'month'])['total_importe'].sum().reset_index()
+    monthly_by_q = aggregated_df.groupby(['quarter_label', 'month'])['total_importe'].sum().reset_index()
     quarterly_avg = monthly_by_q.groupby('quarter_label')['total_importe'].mean()
 
     # 5. Calculate centered positions for each quarter using month groups
@@ -66,9 +72,15 @@ def get_importe_bokeh_figure(csv_path):
         ("Promedio", "@y{0,0.00}")
     ], renderers=[])
 
-    p = figure(x_range=FactorRange(*x_factors), height=500, tools=[bar_hover, line_hover],
-               background_fill_color="#fafafa", toolbar_location=None,
-               title="Importe total por mes y promedio mensual por trimestre (2024)")
+    p = figure(
+        x_range=FactorRange(*x_factors),
+        height=height,
+        width=width,
+        tools=[bar_hover, line_hover],
+        background_fill_color="#fafafa",
+        toolbar_location=None,
+        title=f"Importe total por mes y promedio mensual por trimestre ({year})" if year != "All" else "Importe total por mes y promedio mensual por trimestre (Todos los años)"
+    )
 
     # 9. ColumnDataSource for bars with hover info
     bar_data = {

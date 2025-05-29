@@ -58,9 +58,20 @@ csv_path = os.path.join(os.path.dirname(__file__), "aggregated_df.csv")
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown("## Importe total por mes y promedio mensual por trimestre (2024)")
-    importe_fig = get_importe_bokeh_figure(csv_path)
+    df = pd.read_csv(csv_path)
+    years = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+    years = ["All"] + [str(y) for y in sorted(years)]
+    selected_year_str_importe = st.session_state.get("selected_year_str_importe", years[0])
+    selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
+    st.markdown(f"## Importe total por mes y promedio mensual por trimestre ({selected_year_importe})")
+    importe_fig = get_importe_bokeh_figure(csv_path, year=selected_year_importe, height=500, width=900)
     st.bokeh_chart(importe_fig, use_container_width=True)
+
+    # Place the year filter below the chart
+    selected_year_str_importe = st.selectbox(
+        "Select Year", years, index=years.index(str(selected_year_importe)), key="importe_year"
+    )
+    st.session_state["selected_year_str_importe"] = selected_year_str_importe
 
 with chart_col2:
     df = pd.read_csv(csv_path)
@@ -70,7 +81,7 @@ with chart_col2:
     selected_year = "All" if selected_year_str == "All" else int(selected_year_str)
 
     st.markdown(f"## Risk Client Counts and Percentage by Month ({selected_year})")
-    risk_fig = get_risk_bokeh_figure(csv_path, year=selected_year)
+    risk_fig = get_risk_bokeh_figure(csv_path, year=selected_year, height=500, width=900)
     st.bokeh_chart(risk_fig, use_container_width=True)
 
     # Place the year filter below the chart
