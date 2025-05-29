@@ -1,5 +1,5 @@
 streamlit
-bokeh
+streamlit-bokeh
 numpy
 pandas
 streamlit_option_menu == 0.4.0
