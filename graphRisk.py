@@ -18,11 +18,8 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_risk_bokeh_figure(csv_path=None, year="All", height=500, width=900, df=None):
-    if df is None:
-        if csv_path is None:
-            raise ValueError("Either df or csv_path must be provided")
-        df = pd.read_csv(csv_path)
+def get_risk_bokeh_figure(csv_path, year="All", height=500, width=900):
+    df = pd.read_csv(csv_path)
 
     # Only filter if year is not None and not "All"
     if 'year' in df.columns and year not in (None, "All"):
@@ -116,61 +113,85 @@ def get_risk_bokeh_figure(csv_path=None, year="All", height=500, width=900, df=N
 
 # --- New graph for external_account_id by account age group and year range ---
 
-def get_account_age_bokeh_figure(csv_path=None, year_range=None, df=None):
-    if df is None:
-        if csv_path is None:
-            raise ValueError("Either df or csv_path must be provided")
-        df = pd.read_csv(csv_path)
+def get_account_age_bokeh_figure(csv_path, year_range=None):
+    df = pd.read_csv(csv_path)
+    # Filter by year range if provided
     if year_range and 'year' in df.columns:
         df = df[(df['year'] >= year_range[0]) & (df['year'] <= year_range[1])]
+
+    # Assume 'account_age_years' column exists, otherwise compute from dates if available
     if 'account_age_years' not in df.columns:
         raise ValueError("Column 'account_age_years' not found in data.")
+
+    # Bin account ages
     bins = [0, 1, 3, np.inf]
     labels = ['< 1 year', '1-3 years', '> 3 years']
     df['age_group'] = pd.cut(df['account_age_years'], bins=bins, labels=labels, right=False)
+
+    # Count unique accounts per group
     grouped = df.groupby('age_group')['external_account_id'].nunique().reset_index()
     grouped = grouped.rename(columns={'external_account_id': 'account_count'})
+
     source = ColumnDataSource(grouped)
+
     p = figure(x_range=labels, height=400, width=600,
                title="Unique Accounts by Account Age Group",
                toolbar_location=None, tools="")
+
     bars = p.vbar(x='age_group', top='account_count', width=0.6, source=source,
                   fill_color=color_palette["nx3"], line_color=color_palette["nx2"])
+
     hover = HoverTool(tooltips=[
         ("Age Group", "@age_group"),
         ("Unique Accounts", "@account_count")
     ], renderers=[bars])
     p.add_tools(hover)
+
     p.xgrid.grid_line_color = None
     p.y_range.start = 0
     p.xaxis.axis_label = "Account Age"
     p.yaxis.axis_label = "Unique Accounts"
     return p
 
-def get_account_age_bokeh_figure_by_affiliation(csv_path=None, year_range=None, df=None):
-    if df is None:
-        if csv_path is None:
-            raise ValueError("Either df or csv_path must be provided")
-        df = pd.read_csv(csv_path)
+def get_account_age_bokeh_figure_by_affiliation(csv_path, year_range=None):
+    """
+    Plots unique external_account_id counts by account age group,
+    filtering by year extracted from 'fecha_afiliacion'.
+    """
+    df = pd.read_csv(csv_path)
+
+    # Ensure fecha_afiliacion exists and parse year
     if 'fecha_afiliacion' not in df.columns:
         raise ValueError("Column 'fecha_afiliacion' not found in data.")
     df['afiliacion_year'] = pd.to_datetime(df['fecha_afiliacion']).dt.year
+
+    # Filter by year range if provided
     if year_range:
         df = df[(df['afiliacion_year'] >= year_range[0]) & (df['afiliacion_year'] <= year_range[1])]
+    
+    # Create a new column for account age in years
     if 'account_age_years' not in df.columns:
         if 'fecha_afiliacion' in df.columns:
             df['fecha_afiliacion'] = pd.to_datetime(df['fecha_afiliacion'], errors='coerce')
             df['account_age_years'] = (pd.Timestamp.now() - df['fecha_afiliacion']).dt.days / 365.25
         else:
             raise ValueError("Column 'account_age_years' or 'fecha_afiliacion' not found in data.")
+
+    # Assume 'account_age_years' column exists
     if 'account_age_years' not in df.columns:
         raise ValueError("Column 'account_age_years' not found in data.")
+
+    # Bin account ages
     bins = [0, 1, 3, np.inf]
     labels = ['< 1 year', '1-3 years', '> 3 years']
     df['age_group'] = pd.cut(df['account_age_years'], bins=bins, labels=labels, right=False)
+
+    # Count unique accounts per group
     grouped = df.groupby('age_group')['external_account_id'].nunique().reset_index()
     grouped = grouped.rename(columns={'external_account_id': 'account_count'})
+
     source = ColumnDataSource(grouped)
+
     p = figure(
         x_range=labels,
         height=400,
@@ -179,6 +200,7 @@ def get_account_age_bokeh_figure_by_affiliation(csv_path=None, year_range=None, 
         toolbar_location=None,
         tools=""
     )
+
     bars = p.vbar(
         x='age_group',
         top='account_count',
@@ -187,11 +209,13 @@ def get_account_age_bokeh_figure_by_affiliation(csv_path=None, year_range=None, 
         fill_color=color_palette["nx3"],
         line_color=color_palette["nx2"]
     )
+
     hover = HoverTool(tooltips=[
         ("Age Group", "@age_group"),
         ("Unique Accounts", "@account_count")
     ], renderers=[bars])
     p.add_tools(hover)
+
     p.xgrid.grid_line_color = None
     p.y_range.start = 0
     p.xaxis.axis_label = "Account Age"

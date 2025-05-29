@@ -5,4 +5,3 @@ compose.yaml
 Dockerfile
 README.Docker.md
 .dockerignore
-aggregated_dfl.csv

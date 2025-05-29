@@ -17,13 +17,8 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_importe_bokeh_figure(csv_path=None, year="All", height=500, width=900, df=None):
-    if df is None:
-        if csv_path is None:
-            raise ValueError("Either df or csv_path must be provided")
-        aggregated_df = pd.read_csv(csv_path)
-    else:
-        aggregated_df = df
+def get_importe_bokeh_figure(csv_path, year="All", height=500, width=900):
+    aggregated_df = pd.read_csv(csv_path)
 
     # Filter by year if not "All"
     if year != "All":
