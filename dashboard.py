@@ -22,6 +22,21 @@ st.set_page_config(
     layout = 'wide'
 )
 
+# Add file uploader to sidebar
+with st.sidebar:
+    uploaded_file = st.file_uploader(
+        "Upload CSV file",
+        type=["csv"],
+        help="Upload a CSV file to use as data source"
+    )
+
+# Require file upload before showing dashboard
+if uploaded_file is None:
+    st.warning("Please upload a CSV file to continue.")
+    st.stop()
+
+csv_path = uploaded_file
+
 with st.sidebar:
   selected = option_menu(
     menu_title = "Main Menu",
@@ -48,8 +63,6 @@ with kpi2:
     st.metric("Delinquency Rate", f"{kpis['Delinquency Rate']:.2%}")
 
 st.markdown("---")
-
-csv_path = os.path.join(os.path.dirname(__file__), "aggregated_df.csv")
 
 chart_col1, chart_col2 = st.columns(2)
 

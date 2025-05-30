@@ -15,8 +15,14 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_importe_plotly_figure(csv_path, year="All", height=500, width=900):
-    aggregated_df = pd.read_csv(csv_path)
+def get_importe_plotly_figure(uploaded_file, year="All", height=500, width=900):
+    # Accept both file path and uploaded file-like object
+    if hasattr(uploaded_file, "read"):
+        uploaded_file.seek(0)
+        aggregated_df = pd.read_csv(uploaded_file)
+        uploaded_file.seek(0)
+    else:
+        aggregated_df = pd.read_csv(uploaded_file)
 
     # Filter by year if not "All"
     if year != "All":

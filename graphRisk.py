@@ -16,8 +16,14 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_risk_plotly_figure(csv_path, year="All", height=500, width=900):
-    df = pd.read_csv(csv_path)
+def get_risk_plotly_figure(uploaded_file, year="All", height=500, width=900):
+    # Accept both file path and uploaded file-like object
+    if hasattr(uploaded_file, "read"):
+        uploaded_file.seek(0)
+        df = pd.read_csv(uploaded_file)
+        uploaded_file.seek(0)
+    else:
+        df = pd.read_csv(uploaded_file)
 
     # Only filter if year is not None and not "All"
     if 'year' in df.columns and year not in (None, "All"):
@@ -88,8 +94,14 @@ def get_risk_plotly_figure(csv_path, year="All", height=500, width=900):
 
     return fig
 
-def get_account_age_plotly_figure_by_affiliation(csv_path, year_range=None, height=400, width=600):
-    df = pd.read_csv(csv_path)
+def get_account_age_plotly_figure_by_affiliation(uploaded_file, year_range=None, height=400, width=600):
+    # Accept both file path and uploaded file-like object
+    if hasattr(uploaded_file, "read"):
+        uploaded_file.seek(0)
+        df = pd.read_csv(uploaded_file)
+        uploaded_file.seek(0)
+    else:
+        df = pd.read_csv(uploaded_file)
 
     # Ensure fecha_afiliacion exists and parse year
     if 'fecha_afiliacion' not in df.columns:
