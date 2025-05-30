@@ -4,20 +4,23 @@ import pandas as pd
 import numpy as np 
 import os
 import json
-from bokeh.models import FactorRange, HoverTool, ColumnDataSource
-from bokeh.palettes import Category10  
-from bokeh.plotting import figure
+# Remove Bokeh imports
+# from bokeh.models import FactorRange, HoverTool, ColumnDataSource
+# from bokeh.palettes import Category10  
+# from bokeh.plotting import figure
+
+import plotly.express as px
+import plotly.graph_objects as go
 
 from streamlit_option_menu import option_menu
-from graphImporte import get_importe_bokeh_figure
-from graphRisk import get_risk_bokeh_figure, get_account_age_bokeh_figure_by_affiliation
+from graphImporte import get_importe_plotly_figure   # <-- Update to Plotly version
+from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation  # <-- Update to Plotly version
 
 st.set_page_config(
     page_title = 'Streamlit Sample Dashboard Template',
     page_icon = '✅',
     layout = 'wide'
 )
-
 
 with st.sidebar:
   selected = option_menu(
@@ -30,9 +33,7 @@ with st.sidebar:
         "container": {"background-color": "#483349"},
         "nav-link-selected": {"background-color": "#be7b72"}
     }
-
   )
-
 
 st.markdown("## KPIs Principales")
 
@@ -46,15 +47,10 @@ with kpi1:
 with kpi2:
     st.metric("Delinquency Rate", f"{kpis['Delinquency Rate']:.2%}")
 
-
 st.markdown("---")
 
-
-# Bokeh chart section
-# Load your aggregated_df.csv
 csv_path = os.path.join(os.path.dirname(__file__), "aggregated_df.csv")
 
-# Mostrar las 2 gráficas en columnas
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
@@ -64,10 +60,10 @@ with chart_col1:
     selected_year_str_importe = st.session_state.get("selected_year_str_importe", years[0])
     selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
     st.markdown(f"## Importe total por mes y promedio mensual por trimestre ({selected_year_importe})")
-    importe_fig = get_importe_bokeh_figure(csv_path, year=selected_year_importe, height=500, width=900)
-    st.bokeh_chart(importe_fig, use_container_width=True)
+    # Use Plotly chart
+    importe_fig = get_importe_plotly_figure(csv_path, year=selected_year_importe, height=500, width=900)
+    st.plotly_chart(importe_fig, use_container_width=True)
 
-    # Place the year filter below the chart
     selected_year_str_importe = st.selectbox(
         "Select Year", years, index=years.index(str(selected_year_importe)), key="importe_year"
     )
@@ -81,10 +77,9 @@ with chart_col2:
     selected_year = "All" if selected_year_str == "All" else int(selected_year_str)
 
     st.markdown(f"## Risk Client Counts and Percentage by Month ({selected_year})")
-    risk_fig = get_risk_bokeh_figure(csv_path, year=selected_year, height=500, width=900)
-    st.bokeh_chart(risk_fig, use_container_width=True)
+    risk_fig = get_risk_plotly_figure(csv_path, year=selected_year, height=500, width=900)
+    st.plotly_chart(risk_fig, use_container_width=True)
 
-    # Place the year filter below the chart
     selected_year_str = st.selectbox(
         "Select Year", years, index=years.index(str(selected_year)), key="risk_year"
     )
@@ -94,19 +89,15 @@ st.markdown("---")
 
 st.markdown("## Unique Accounts by Account Age Group (Affiliation Year Filter)")
 
-# Mostrar la gráfica primero (con valores iniciales)
 df = pd.read_csv(csv_path)
 af_years = pd.to_datetime(df['fecha_afiliacion']).dt.year
 min_af_year, max_af_year = int(af_years.min()), int(af_years.max())
 
-# Default range
 af_year_range = st.session_state.get("af_year_range", (min_af_year, max_af_year))
 
-# Renderizar gráfica según ese rango
-account_age_aff_fig = get_account_age_bokeh_figure_by_affiliation(csv_path, year_range=af_year_range)
-st.bokeh_chart(account_age_aff_fig, use_container_width=True)
+account_age_aff_fig = get_account_age_plotly_figure_by_affiliation(csv_path, year_range=af_year_range)
+st.plotly_chart(account_age_aff_fig, use_container_width=True)
 
-# Mostrar el slider DEBAJO
 af_year_range = st.slider(
     "Select Affiliation Year Range",
     min_af_year,
@@ -117,7 +108,6 @@ af_year_range = st.slider(
 
 st.markdown("---")
 
-# KPIs Quarters
 table1, table2, table3 = st.columns(3)
 
 with table1:

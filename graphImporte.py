@@ -1,9 +1,7 @@
 import os
 import pandas as pd
-from bokeh.models import FactorRange, HoverTool, ColumnDataSource
-from bokeh.plotting import figure
+import plotly.graph_objects as go
 
-# Define your color palette (reuse from graphRisk.py if you want consistency)
 color_palette = {
     "nx1" : "#401f71",
     "nx2" : "#824d74",
@@ -17,7 +15,7 @@ color_palette = {
     "nx10": "#d9ccef"
 }
 
-def get_importe_bokeh_figure(csv_path, year="All", height=500, width=900):
+def get_importe_plotly_figure(csv_path, year="All", height=500, width=900):
     aggregated_df = pd.read_csv(csv_path)
 
     # Filter by year if not "All"
@@ -26,106 +24,70 @@ def get_importe_bokeh_figure(csv_path, year="All", height=500, width=900):
 
     # If no data for selected year, return empty plot
     if aggregated_df.empty:
-        p = figure(height=height, width=width, title=f"No data for year {year}")
-        return p
+        fig = go.Figure()
+        fig.update_layout(
+            title=f"No data for year {year}",
+            height=height,
+            width=width
+        )
+        return fig
 
-    # 2. Create labels like ("Q1", "1"), ("Q1", "2"), ...
+    # Prepare labels and groupings
     aggregated_df['quarter_label'] = 'Q' + aggregated_df['quarter'].astype(str)
     aggregated_df['month_str'] = aggregated_df['month'].astype(str)
-    aggregated_df['x'] = list(zip(aggregated_df['quarter_label'], aggregated_df['month_str']))
+    aggregated_df['x'] = aggregated_df['quarter_label'] + '-' + aggregated_df['month_str']
 
-    # 3. Group by (quarter, month) and sum importe
-    monthly_group = aggregated_df.groupby('x')['total_importe'].sum().reset_index()
-    monthly_group = monthly_group.sort_values('x')
-    x_factors = list(monthly_group['x'])
+    # Group by (quarter, month) and sum importe
+    monthly_group = aggregated_df.groupby(['quarter_label', 'month']).agg({
+        'total_importe': 'sum'
+    }).reset_index()
+    monthly_group['x'] = monthly_group['quarter_label'] + '-' + monthly_group['month'].astype(str)
+    monthly_group = monthly_group.sort_values(['quarter_label', 'month'])
 
-    # 4. Group monthly and then average monthly by quarter
-    monthly_by_q = aggregated_df.groupby(['quarter_label', 'month'])['total_importe'].sum().reset_index()
-    quarterly_avg = monthly_by_q.groupby('quarter_label')['total_importe'].mean()
+    # Group monthly and then average monthly by quarter
+    quarterly_avg = monthly_group.groupby('quarter_label')['total_importe'].mean().reset_index()
 
-    # 5. Calculate centered positions for each quarter using month groups
-    quarter_groups = {}
-    for i, (q, m) in enumerate(x_factors):
-        quarter_groups.setdefault(q, []).append(i)
-    quarter_x_positions = {}
-    for quarter, positions in quarter_groups.items():
-        quarter_x_positions[quarter] = (min(positions) + max(positions)) / 2
+    # Bar chart for monthly totals
+    fig = go.Figure()
 
-    # 6. Prepare line coordinates
-    quarters_sorted = ['Q1', 'Q2', 'Q3', 'Q4']
-    x_quarter_coords = [quarter_x_positions[q] for q in quarters_sorted if q in quarter_x_positions and q in quarterly_avg]
-    y_quarter_values = [quarterly_avg[q] for q in quarters_sorted if q in quarter_x_positions and q in quarterly_avg]
+    fig.add_trace(go.Bar(
+        x=monthly_group['x'],
+        y=monthly_group['total_importe'],
+        name='Importe mensual',
+        marker_color=color_palette["nx3"],
+        hovertemplate='Trimestre: %{x}<br>Importe: %{y:,.2f}<extra></extra>'
+    ))
 
-    # 7. Colors (using color_palette)
-    fill_color = color_palette["nx3"]
-    line_color = color_palette["nx2"]
+    # Line for quarterly average
+    # Place the line in the middle of each quarter group
+    quarter_positions = []
+    for q in quarterly_avg['quarter_label']:
+        quarter_months = monthly_group[monthly_group['quarter_label'] == q]['x']
+        if not quarter_months.empty:
+            idx = len(quarter_months) // 2
+            quarter_positions.append(quarter_months.iloc[idx])
+        else:
+            quarter_positions.append(q + '-2')  # fallback
 
-    # 8. Create figure with hover tools
-    bar_hover = HoverTool(tooltips=[
-        ("Trimestre", "@quarter"),
-        ("Mes", "@month_name (@month)"),
-        ("Importe", "@top{0,0.00}")
-    ], renderers=[])
+    fig.add_trace(go.Scatter(
+        x=quarter_positions,
+        y=quarterly_avg['total_importe'],
+        mode='lines+markers',
+        name='Promedio mensual por trimestre',
+        line=dict(color=color_palette["nx2"], width=3),
+        marker=dict(size=10, color=color_palette["nx5"], line=dict(width=2, color=color_palette["nx2"])),
+        hovertemplate='Trimestre: %{x}<br>Promedio: %{y:,.2f}<extra></extra>'
+    ))
 
-    line_hover = HoverTool(tooltips=[
-        ("Trimestre", "@quarter"),
-        ("Promedio", "@y{0,0.00}")
-    ], renderers=[])
-
-    p = figure(
-        x_range=FactorRange(*x_factors),
+    fig.update_layout(
+        title=f"Importe total por mes y promedio mensual por trimestre ({year})" if year != "All" else "Importe total por mes y promedio mensual por trimestre (Todos los años)",
+        xaxis_title="Trimestre-Mes",
+        yaxis_title="Importe total",
+        barmode='group',
         height=height,
         width=width,
-        tools=[bar_hover, line_hover],
-        background_fill_color="#fafafa",
-        toolbar_location=None,
-        title=f"Importe total por mes y promedio mensual por trimestre ({year})" if year != "All" else "Importe total por mes y promedio mensual por trimestre (Todos los años)"
+        plot_bgcolor="#fafafa",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
-    # 9. ColumnDataSource for bars with hover info
-    bar_data = {
-        'x': x_factors,
-        'top': monthly_group['total_importe'],
-        'quarter': [f[0] for f in x_factors],
-        'month': [f[1] for f in x_factors],
-        'month_name': [
-            ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-             'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][int(f[1])-1]
-            for f in x_factors
-        ]
-    }
-    source = ColumnDataSource(bar_data)
-
-    bars = p.vbar(x='x', top='top', width=0.8, source=source,
-           fill_color=fill_color, fill_alpha=0.8,
-           line_color=line_color, line_width=1.2)
-    bar_hover.renderers = [bars]
-
-    # 10. Line for quarterly average
-    quarter_coords = []
-    for quarter in quarters_sorted:
-        if quarter in quarterly_avg:
-            quarter_factors = [f for f in x_factors if f[0] == quarter]
-            if quarter_factors:
-                middle_idx = len(quarter_factors) // 2
-                quarter_coords.append(quarter_factors[middle_idx])
-
-    line_data = {
-        'x': quarter_coords,
-        'y': y_quarter_values,
-        'quarter': quarters_sorted[:len(y_quarter_values)]
-    }
-    line_source = ColumnDataSource(line_data)
-
-    line_renderer = p.line(x='x', y='y', source=line_source, color=line_color, line_width=3)
-    scatter_renderer = p.scatter(x='x', y='y', source=line_source, size=10,
-              line_color=line_color, fill_color=color_palette["nx5"], line_width=3)
-    line_hover.renderers = [line_renderer, scatter_renderer]
-
-    # 11. Final aesthetics
-    p.y_range.start = 0
-    p.x_range.range_padding = 0.1
-    p.xaxis.major_label_orientation = 1
-    p.xgrid.grid_line_color = None
-
-    return p
+    return fig
