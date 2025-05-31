@@ -25,17 +25,22 @@ st.set_page_config(
 # Add file uploader to sidebar
 with st.sidebar:
     uploaded_file = st.file_uploader(
-        "Upload CSV file",
+        "Upload CSV file (optional)",
         type=["csv"],
-        help="Upload a CSV file to use as data source"
+        help="Upload a CSV file to override the default data"
     )
 
+DEFAULT_CSV_PATH = os.path.join(os.path.dirname(__file__), "Data", "aggregated_df.csv")
+
+if uploaded_file is not None:
+    csv_path = uploaded_file
+else:
+    csv_path = DEFAULT_CSV_PATH
+
 # Require file upload before showing dashboard
-if uploaded_file is None:
+if csv_path is None:
     st.warning("Please upload a CSV file to continue.")
     st.stop()
-
-csv_path = uploaded_file
 
 with st.sidebar:
   selected = option_menu(
