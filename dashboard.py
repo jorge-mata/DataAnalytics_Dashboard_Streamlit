@@ -55,7 +55,7 @@ with st.sidebar:
     }
   )
 
-st.markdown("## KPIs Principales")
+st.markdown("## Main KPIs")
 
 kpi_json_path = os.path.join(os.path.dirname(__file__), "kpis.json")
 with open(kpi_json_path, "r") as f:
@@ -73,39 +73,29 @@ chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
     df = pd.read_csv(csv_path)
-    years = df['year'].unique().tolist() if 'year' in df.columns else [2024]
-    years = ["All"] + [str(y) for y in sorted(years)]
-    selected_year_str_importe = st.session_state.get("selected_year_str_importe", years[0])
-    selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
-    st.markdown(f"## Importe total por mes y promedio mensual por trimestre ({selected_year_importe})")
-    # Use Plotly chart
-    importe_fig = get_importe_plotly_figure(csv_path, year=selected_year_importe, height=500, width=900)
-    st.plotly_chart(importe_fig, use_container_width=True)
-
+    years_importe = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+    years_importe = ["All"] + [str(y) for y in sorted(years_importe)]
     selected_year_str_importe = st.selectbox(
-        "Select Year", years, index=years.index(str(selected_year_importe)), key="importe_year"
+        "Select Year for Importe", years_importe, key="importe_year"
     )
-    st.session_state["selected_year_str_importe"] = selected_year_str_importe
+    selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
+    importe_fig = get_importe_plotly_figure(csv_path, year=selected_year_importe, height=500)
+    importe_fig.update_layout(title_text=f"Total amount per month and monthly average per quarter ({selected_year_importe})")
+    st.plotly_chart(importe_fig, use_container_width=True)
 
 with chart_col2:
     df = pd.read_csv(csv_path)
-    years = df['year'].unique().tolist() if 'year' in df.columns else [2024]
-    years = ["All"] + [str(y) for y in sorted(years)] 
-    selected_year_str = st.session_state.get("selected_year_str", years[0])
-    selected_year = "All" if selected_year_str == "All" else int(selected_year_str)
-
-    st.markdown(f"## Risk Client Counts and Percentage by Month ({selected_year})")
-    risk_fig = get_risk_plotly_figure(csv_path, year=selected_year, height=500, width=900)
+    years_risk = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+    years_risk = ["All"] + [str(y) for y in sorted(years_risk)]
+    selected_year_str_risk = st.selectbox(
+        "Select Year for Risk", years_risk, key="risk_year"
+    )
+    selected_year_risk = "All" if selected_year_str_risk == "All" else int(selected_year_str_risk)
+    risk_fig = get_risk_plotly_figure(csv_path, year=selected_year_risk, height=500)
+    risk_fig.update_layout(title_text=f"Risk Client Counts and Percentage by Month ({selected_year_risk})")
     st.plotly_chart(risk_fig, use_container_width=True)
 
-    selected_year_str = st.selectbox(
-        "Select Year", years, index=years.index(str(selected_year)), key="risk_year"
-    )
-    st.session_state["selected_year_str"] = selected_year_str
-
 st.markdown("---")
-
-st.markdown("## Unique Accounts by Account Age Group (Affiliation Year Filter)")
 
 df = pd.read_csv(csv_path)
 af_years = pd.to_datetime(df['fecha_afiliacion']).dt.year
@@ -114,6 +104,9 @@ min_af_year, max_af_year = int(af_years.min()), int(af_years.max())
 af_year_range = st.session_state.get("af_year_range", (min_af_year, max_af_year))
 
 account_age_aff_fig = get_account_age_plotly_figure_by_affiliation(csv_path, year_range=af_year_range)
+account_age_aff_fig.update_layout(
+    title_text="Unique Accounts by Account Age Group (Affiliation Year Filter)"
+)
 st.plotly_chart(account_age_aff_fig, use_container_width=True)
 
 af_year_range = st.slider(
