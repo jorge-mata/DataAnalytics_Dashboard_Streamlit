@@ -1,8 +1,6 @@
 /aggregated_df.csv
 aggregated_dfOld.csv
 .DS_Store
-compose.yaml
-Dockerfile
 README.Docker.md
 .dockerignore
 data/
