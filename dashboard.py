@@ -157,5 +157,5 @@ elif selected == "About Ximple":
 elif selected == "User Guide":
     page2.main()
 
-elif selected == "Risk Management Dashboard":
+elif selected == "Risk Management":
     page3.main()
