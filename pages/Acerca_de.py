@@ -2,7 +2,7 @@ import streamlit as st
 import os
 
 def main():
-    st.title("Acerca de")
+    st.title("About Ximple")
     st.markdown(" ")  # Line break after title
 
     # Row 1: Image on the right, intro on the left (less margin)
