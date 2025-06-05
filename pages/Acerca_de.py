@@ -34,17 +34,66 @@ def main():
     st.markdown("---")
     row3_col1, row3_col2 = st.columns([1, 3], gap="small")
     with row3_col1:
-        st.header("Storytelling")
+        st.header("Strategic Insights")
     with row3_col2:
         st.write("""
-        A continuación, se muestran los pasos y evidencias del trabajo realizado junto a Xavier. Esta página web ofrece una explicación breve de todos los entregables previos, comenzando por quién es Ximple, el planteamiento del problema, los hallazgos en la base de datos proporcionada, los modelos de machine learning desarrollados, la creación del dashboard y, finalmente, las recomendaciones finales derivadas del proyecto.
-
-        **Home / Acerca de**
-        - En esta sección, es fundamental mostrar el conocimiento del equipo sobre la empresa (¿quién es Ximple? ¿cuáles son sus retos?), proporcionando un contexto que permita entender el trabajo realizado y demostrar una clara comprensión del negocio.
-        - Posteriormente, se describe la situación actual de Ximple, identificando los factores cruciales (internos y externos) y presentando una visión general del análisis FODA.
-        - El núcleo del proyecto es el planteamiento del problema: cómo puede la empresa gestionar el riesgo que representan algunos clientes debido al incumplimiento en el pago de préstamos.
-        - Finalmente, se introduce la solución propuesta, ofreciendo solo un adelanto, ya que las siguientes páginas profundizarán en cada parte de la solución.
+            The strategic insights derived from the data analysis and machine learning models will help Ximple in the following ways:
         """)
+
+    # --- Strategic Insights Cards ---
+    st.markdown("""
+    <style>
+    .nx-card-header {
+        background-color: #401f71;
+        color: white;
+        text-align: center;
+        padding: 0.6em 0.2em;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+        font-size: 1.05em;
+        letter-spacing: 0.5px;
+        margin-bottom: 0;
+    }
+    .nx-card-body {
+        border: 1.5px solid #401f71;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        background: transparent;
+        padding: 1em 0.7em;
+        min-height: 120px;
+        font-size: 1em;
+        margin-bottom: 1.2em;
+        color: #401f71;
+    }
+    @media (prefers-color-scheme: dark) {
+        .nx-card-body {
+            color: #fff;
+            border-color: #a58fff;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    card_titles = [
+        "FINANCIAL INCLUSION FOR UNBANKED ENTREPRENEURS",
+        "RISK MANAGEMENT & CREDIT ASSESSMENT",
+        "TECH-ENABLED CREDIT & SALES GROWTH",
+        "SCALABILITY & MARKET PENETRATION"
+    ]
+    card_bodies = [
+        "Ximple, gives entrepreneurs the opportunity to have a loan to achieve their business goals, providing a safe banking service.",
+        "However, it is important to analyze the risk management the company may encounter if the clients don’t repay their loans and credits.",
+        "With this, it is also crucial for the company to analyze the risk and keep growing with a well founded base for their customers and sales to keep growing.",
+        "Once this is well-established, scalability in the market is important for the penetration of the same and be able to keep innovating and stay competitive."
+    ]
+
+    card_cols = st.columns(4, gap="large")
+    for i in range(4):
+        with card_cols[i]:
+            st.markdown(f'<div class="nx-card-header">{card_titles[i]}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="nx-card-body">{card_bodies[i]}</div>', unsafe_allow_html=True)
+    # --- End Strategic Insights Cards ---
+
     st.markdown("---")
 
 if __name__ == "__main__":

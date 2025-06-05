@@ -46,7 +46,7 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "Acerca de", "User Guide", "Risk Management Dashboard"],
+    options=["Dashboard", "About Ximple", "User Guide", "Risk Management Dashboard"],
     icons=["house", "info-circle", "book", "person"],
     orientation="horizontal",
     styles={
@@ -151,11 +151,11 @@ if selected == "Dashboard":
         )
         st.table(avg_purchase_df)
 
-elif selected == "Acerca de":
+elif selected == "About Ximple":
     page1.main()
 
 elif selected == "User Guide":
     page2.main()
 
-elif selected == "User Persona Dashboard":
+elif selected == "Risk Management Dashboard":
     page3.main()
