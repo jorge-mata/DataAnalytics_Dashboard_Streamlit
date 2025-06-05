@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import os
 
 def main():
-    st.title("User Persona Dashboard")
+    st.title("Risk Management Dashboard")
 
     # Custom CSS to set selected filter color to #be7b72
     st.markdown(
