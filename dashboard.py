@@ -10,12 +10,14 @@ from graphImporte import get_importe_plotly_figure
 from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation
 
 # Import your page modules
-from pages import Acerca_de, Key_Findings, User_Persona_Dashboard
+from pages import Acerca_de, Key_Findings, User_Persona_Dashboard, Meet_Nexus, ML_Models
 
 # Then, use them as:
 page1 = Acerca_de
 page2 = Key_Findings
 page3 = User_Persona_Dashboard
+page4 = Meet_Nexus
+page5 = ML_Models
 
 st.set_page_config(
     page_title='NEXUS Dashboard',
@@ -46,8 +48,8 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "About Ximple", "User Guide", "Risk Management"],
-    icons=["house", "info-circle", "book", "person"],
+    options=["Dashboard", "About Ximple", "User Guide", "Machine Learning", "Risk Management", "Meet Nexus"],
+    icons=["house", "info-circle", "book", "robot", "person", "people"],
     orientation="horizontal",
     styles={
         "container": {"padding": "0!important", "background-color": "#483349"},
@@ -159,3 +161,9 @@ elif selected == "User Guide":
 
 elif selected == "Risk Management":
     page3.main()
+
+elif selected == "Meet Nexus":
+    page4.main()
+
+elif selected == "Machine Learning":
+    page5.main()
