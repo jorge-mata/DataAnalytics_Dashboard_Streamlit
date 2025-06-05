@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import os
 
 def main():
-    st.title("Risk Management Dashboard")
+    st.title("Risk Management")
 
     # Custom CSS to set selected filter color to #be7b72
     st.markdown(
