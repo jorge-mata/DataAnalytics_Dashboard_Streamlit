@@ -7,6 +7,25 @@ import os
 def main():
     st.title("User Persona Dashboard")
 
+    # Custom CSS to set selected filter color to #be7b72
+    st.markdown(
+        """
+        <style>
+        /* Selected option in selectbox/multiselect dropdown */
+        div[data-baseweb="option"]:has([aria-selected="true"]) {
+            background-color: #be7b72 !important;
+            color: white !important;
+        }
+        /* Selected tag in multiselect */
+        .stMultiSelect [data-baseweb="tag"] {
+            background-color: #be7b72 !important;
+            color: white !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
     # Load data
     DATA_PATH = os.path.join(os.path.dirname(__file__), '../Data/aggregated_df.csv')
     df = pd.read_csv(DATA_PATH)
