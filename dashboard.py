@@ -18,8 +18,9 @@ page2 = Key_Findings
 page3 = User_Persona_Dashboard
 
 st.set_page_config(
-    page_title='Streamlit Sample Dashboard Template',
-    page_icon='✅',
+    page_title='NEXUS Dashboard',
+    initial_sidebar_state='collapsed',
+    page_icon='NEXUS.png',
     layout='wide'
 )
 
