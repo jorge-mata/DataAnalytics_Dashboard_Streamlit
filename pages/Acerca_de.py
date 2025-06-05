@@ -8,11 +8,11 @@ def main():
     # Row 1: Image on the right, intro on the left (less margin)
     row1_col1, row1_col2 = st.columns([3, 2], gap="small")
     with row1_col1:
-        st.header("Introducción")
+        st.header("Business Understanding")
         st.markdown("---")
         st.write("""
-        Durante estos meses, tuvimos la oportunidad de colaborar con Ximple, una fintech que enfrenta diversos retos, especialmente en la gestión de riesgos. Uno de los principales desafíos es otorgar préstamos a emprendedores y personas que trabajan mediante ventas por catálogo, quienes requieren financiamiento para cumplir con sus ventas.
-        """)
+        During this course, we had the opportunity to work with Ximple, a fintech that is facing various challenges, specially when it comes to risk management. 
+        The company is looking to improve its risk management processes, particularly in identifying potential clients who may not repay their loans, thus posing a risk to the business.""")
     with row1_col2:
         img_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), "..", "img", "Ximple-Card-2048x1072.webp")
@@ -23,10 +23,11 @@ def main():
     st.markdown("---")
     row2_col1, row2_col2 = st.columns([1, 3], gap="small")
     with row2_col1:
-        st.header("Planteamiento del Problema")
+        st.header("Problem Statement")
     with row2_col2:
         st.write("""
-            En este documento, presentamos una narrativa basada en la información recopilada a lo largo del curso, así como la propuesta de modelos de machine learning y dashboard que desarrollamos para abordar y precisar nuestro problema: ¿quiénes son los clientes potenciales que podrían no pagar un préstamo, representando así un riesgo para la empresa?
+            One of the main challenges is improving its credit risk assessment models. The main problem is to assess the creditworthiness of small business owners to predict loan repayment likelihood.
+            The goal is to develop a machine learning model that can accurately predict which clients are likely to default on their loans, allowing Ximple to make informed decisions about loan approvals and risk management.
         """)
 
     # Row 3: Header left, text right (less margin)

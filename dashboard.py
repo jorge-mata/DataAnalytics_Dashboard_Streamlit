@@ -34,6 +34,10 @@ st.markdown(
         .css-1d391kg {display: none !important;} /* Older versions */
         .stDeployButton {display:none;}
         header[data-testid="stHeader"] {z-index: 2;}
+        /* Hide the new sidebar toggle button if Streamlit changes its selector */
+        [data-testid="stSidebarNav"] {display: none !important;}
+        /* Hide the menu button in the header (three dots) */
+        button[title="Main menu"] {display: none !important;}
     </style>
     """,
     unsafe_allow_html=True,
@@ -42,7 +46,7 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "Acerca de", "User Guide", "User Persona Dashboard"],
+    options=["Dashboard", "Acerca de", "User Guide", "Risk Management Dashboard"],
     icons=["house", "info-circle", "book", "person"],
     orientation="horizontal",
     styles={
