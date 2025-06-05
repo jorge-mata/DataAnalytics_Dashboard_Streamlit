@@ -46,7 +46,7 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "About Ximple", "User Guide", "Risk Management Dashboard"],
+    options=["Dashboard", "About Ximple", "User Guide", "Risk Management"],
     icons=["house", "info-circle", "book", "person"],
     orientation="horizontal",
     styles={
