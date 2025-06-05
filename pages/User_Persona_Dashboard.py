@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
+import plotly.graph_objects as go
 import os
 
 def main():
@@ -62,53 +62,99 @@ def main():
 
     st.dataframe(risk_summary)
 
-    # First row of charts
+    # First row of charts with go instead of px
     col1, col2 = st.columns(2)
     with col1:
-        fig = px.bar(
-            risk_summary,
-            x='riskclient',
-            y='num_loans',
-            color='riskclient',
-            title='Number of Loans by Risk Level'
+        colors = ["#824d74", "#be7b72"]
+        risk_levels = risk_summary['riskclient'].unique()
+        
+        fig = go.Figure()
+        for i, risk in enumerate(risk_levels):
+            df_risk = risk_summary[risk_summary['riskclient'] == risk]
+            fig.add_trace(go.Bar(
+                x=df_risk['riskclient'],
+                y=df_risk['num_loans'],
+                name=str(risk),
+                marker_color=colors[i % len(colors)]
+            ))
+        
+        fig.update_layout(
+            title='Number of Loans by Risk Level',
+            xaxis_title='Risk Level',
+            yaxis_title='Number of Loans',
+            barmode='group'
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        fig2 = px.bar(
-            risk_summary,
-            x='riskclient',
-            y='ever_delinquent_rate',
-            color='riskclient',
-            title='Ever Delinquent Rate by Risk Level'
+        fig2 = go.Figure()
+        for i, risk in enumerate(risk_levels):
+            df_risk = risk_summary[risk_summary['riskclient'] == risk]
+            fig2.add_trace(go.Bar(
+                x=df_risk['riskclient'],
+                y=df_risk['ever_delinquent_rate'],
+                name=str(risk),
+                marker_color=colors[i % len(colors)]
+            ))
+        
+        fig2.update_layout(
+            title='Ever Delinquent Rate by Risk Level',
+            xaxis_title='Risk Level',
+            yaxis_title='Delinquent Rate',
+            barmode='group'
         )
         st.plotly_chart(fig2, use_container_width=True)
 
-    # Second row of charts
+    # Second row of charts - only changing the bar colors
     col3, col4 = st.columns(2)
     with col3:
         st.markdown("#### Most Purchased Category by Risk Level")
         category_by_risk = filtered_df.groupby(['riskclient', 'most_purchased_category']).size().reset_index(name='count')
-        fig3 = px.bar(
-            category_by_risk,
-            x='riskclient',
-            y='count',
-            color='most_purchased_category',
-            barmode='stack',
-            title='Most Purchased Category by Risk Level'
+        
+        # Get unique categories
+        categories = category_by_risk['most_purchased_category'].unique()
+        
+        fig3 = go.Figure()
+        colors = ["#824d74", "#be7b72"]  # Specified hex colors
+        for i, risk in enumerate(risk_levels):
+            df_risk = category_by_risk[category_by_risk['riskclient'] == risk]
+            fig3.add_trace(go.Bar(
+                x=df_risk['most_purchased_category'],
+                y=df_risk['count'],
+                name=str(risk),
+                marker_color=colors[i % len(colors)]  # Alternating colors
+            ))
+        
+        fig3.update_layout(
+            title='Most Purchased Category by Risk Level',
+            xaxis_title='Category',
+            yaxis_title='Count',
+            barmode='stack'
         )
         st.plotly_chart(fig3, use_container_width=True)
 
     with col4:
         st.markdown("#### Payment Method by Risk Level")
         payment_method_by_risk = filtered_df.groupby(['riskclient', 'medio_pago']).size().reset_index(name='count')
-        fig4 = px.bar(
-            payment_method_by_risk,
-            x='riskclient',
-            y='count',
-            color='medio_pago',
-            barmode='stack',
-            title='Payment Method by Risk Level'
+        
+        # Get unique payment methods
+        payment_methods = payment_method_by_risk['medio_pago'].unique()
+        
+        fig4 = go.Figure()
+        for i, risk in enumerate(risk_levels):
+            df_risk = payment_method_by_risk[payment_method_by_risk['riskclient'] == risk]
+            fig4.add_trace(go.Bar(
+                x=df_risk['medio_pago'],
+                y=df_risk['count'],
+                name=str(risk),
+                marker_color=colors[i % len(colors)]  # Alternating colors
+            ))
+        
+        fig4.update_layout(
+            title='Payment Method by Risk Level',
+            xaxis_title='Payment Method',
+            yaxis_title='Count',
+            barmode='stack'
         )
         st.plotly_chart(fig4, use_container_width=True)
 
@@ -117,12 +163,22 @@ def main():
     with col5:
         st.markdown("#### Client Tenure vs. Risk")
         tenure_by_risk = filtered_df.groupby('riskclient')['days_since_affiliation'].mean().reset_index()
-        fig5 = px.bar(
-            tenure_by_risk,
-            x='riskclient',
-            y='days_since_affiliation',
-            color='riskclient',
-            title='Average Days Since Affiliation by Risk Level'
+        
+        fig5 = go.Figure()
+        for i, risk in enumerate(risk_levels):
+            df_risk = tenure_by_risk[tenure_by_risk['riskclient'] == risk]
+            fig5.add_trace(go.Bar(
+                x=df_risk['riskclient'],
+                y=df_risk['days_since_affiliation'],
+                name=str(risk),
+                marker_color=colors[i % len(colors)]
+            ))
+        
+        fig5.update_layout(
+            title='Average Days Since Affiliation by Risk Level',
+            xaxis_title='Risk Level',
+            yaxis_title='Days Since Affiliation',
+            barmode='group'
         )
         st.plotly_chart(fig5, use_container_width=True)
 
@@ -134,13 +190,22 @@ def main():
             avg_delinquencies=('num_delinquencies', 'mean')
         ).reset_index()
         seasonality['temporada'] = seasonality['es_temporada_alta_real'].map({1: 'Alta', 0: 'Baja'})
-        fig6 = px.bar(
-            seasonality,
-            x='riskclient',
-            y='num_loans',
-            color='temporada',
-            barmode='group',
-            title='Loans by Risk Level and Season'
+        
+        fig6 = go.Figure()
+        for i, temp in enumerate(['Alta', 'Baja']):
+            df_temp = seasonality[seasonality['temporada'] == temp]
+            fig6.add_trace(go.Bar(
+                x=df_temp['riskclient'],
+                y=df_temp['num_loans'],
+                name=temp,
+                marker_color=colors[i % len(colors)]
+            ))
+        
+        fig6.update_layout(
+            title='Loans by Risk Level and Season',
+            xaxis_title='Risk Level',
+            yaxis_title='Number of Loans',
+            barmode='group'
         )
         st.plotly_chart(fig6, use_container_width=True)
 
