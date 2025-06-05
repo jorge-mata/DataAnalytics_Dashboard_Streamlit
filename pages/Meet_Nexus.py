@@ -5,7 +5,6 @@ def main():
     st.markdown("<h1 style='text-align: center;'>Meet Nexus</h1>", unsafe_allow_html=True)
     st.markdown(" ")
 
-    # Display team image centered with smaller width
     team = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "img", "team.png")
     )

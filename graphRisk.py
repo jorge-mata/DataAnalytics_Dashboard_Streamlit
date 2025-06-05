@@ -130,7 +130,7 @@ def get_account_age_plotly_figure_by_affiliation(uploaded_file, year_range=None,
     df['age_group'] = pd.cut(df['account_age_years'], bins=bins, labels=labels, right=False)
 
     # Count unique accounts per group
-    grouped = df.groupby('age_group')['external_account_id'].nunique().reset_index()
+    grouped = df.groupby('age_group', observed=False)['external_account_id'].nunique().reset_index()
     grouped = grouped.rename(columns={'external_account_id': 'account_count'})
 
     fig = go.Figure()
