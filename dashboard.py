@@ -10,7 +10,12 @@ from graphImporte import get_importe_plotly_figure
 from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation
 
 # Import your page modules
-from pages import page1, page2, page3
+from pages import Acerca_de, Key_Findings, User_Persona_Dashboard
+
+# Then, use them as:
+page1 = Acerca_de
+page2 = Key_Findings
+page3 = User_Persona_Dashboard
 
 st.set_page_config(
     page_title='Streamlit Sample Dashboard Template',
