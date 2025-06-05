@@ -1,142 +1,151 @@
 import streamlit as st
-import streamlit_option_menu
 import pandas as pd
 import numpy as np 
 import os
 import json
-# Remove Bokeh imports
-# from bokeh.models import FactorRange, HoverTool, ColumnDataSource
-# from bokeh.palettes import Category10  
-# from bokeh.plotting import figure
-
 import plotly.express as px
 import plotly.graph_objects as go
-
 from streamlit_option_menu import option_menu
-from graphImporte import get_importe_plotly_figure   # <-- Update to Plotly version
-from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation  # <-- Update to Plotly version
+from graphImporte import get_importe_plotly_figure
+from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation
+
+# Import your page modules
+from pages import page1, page2, page3
 
 st.set_page_config(
-    page_title = 'Streamlit Sample Dashboard Template',
-    page_icon = '✅',
-    layout = 'wide'
+    page_title='Streamlit Sample Dashboard Template',
+    page_icon='✅',
+    layout='wide'
 )
 
-# Add file uploader to sidebar
-with st.sidebar:
-    uploaded_file = st.file_uploader(
-        "Upload CSV file (optional)",
-        type=["csv"],
-        help="Upload a CSV file to override the default data"
-    )
+# Custom CSS to hide sidebar and other elements
+st.markdown(
+    """
+    <style>
+        /* Hide sidebar, collapsed control, and hamburger/arrow */
+        [data-testid="stSidebar"] {display: none !important;}
+        [data-testid="collapsedControl"] {display: none !important;}
+        .css-1d391kg {display: none !important;} /* Older versions */
+        .stDeployButton {display:none;}
+        header[data-testid="stHeader"] {z-index: 2;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# HEADER NAVIGATION BAR
+selected = option_menu(
+    menu_title=None,
+    options=["Dashboard", "Acerca de", "User Guide", "User Persona Dashboard"],
+    icons=["house", "info-circle", "book", "person"],
+    orientation="horizontal",
+    styles={
+        "container": {"padding": "0!important", "background-color": "#483349"},
+        "icon": {"color": "white", "font-size": "18px"},
+        "nav-link": {"color": "white", "font-size": "18px", "text-align": "center", "margin": "0px", "--hover-color": "#be7b72"},
+        "nav-link-selected": {"background-color": "#be7b72"},
+    }
+)
 
 DEFAULT_CSV_PATH = os.path.join(os.path.dirname(__file__), "Data", "aggregated_df.csv")
+csv_path = DEFAULT_CSV_PATH
 
-if uploaded_file is not None:
-    csv_path = uploaded_file
-else:
-    csv_path = DEFAULT_CSV_PATH
-
-# Require file upload before showing dashboard
 if csv_path is None:
     st.warning("Please upload a CSV file to continue.")
     st.stop()
 
-with st.sidebar:
-  selected = option_menu(
-    menu_title = "Main Menu",
-    options = ["Dashboard.py","App.py"],
-    icons = ["house","book"],
-    menu_icon = "cast",
-    default_index = 0,
-    styles={
-        "container": {"background-color": "#483349"},
-        "nav-link-selected": {"background-color": "#be7b72"}
-    }
-  )
+if selected == "Dashboard":
+    st.markdown("## Main KPIs")
 
-st.markdown("## Main KPIs")
+    kpi_json_path = os.path.join(os.path.dirname(__file__), "kpis.json")
+    with open(kpi_json_path, "r") as f:
+        kpis = json.load(f)
 
-kpi_json_path = os.path.join(os.path.dirname(__file__), "kpis.json")
-with open(kpi_json_path, "r") as f:
-    kpis = json.load(f)
+    kpi1, kpi2 = st.columns(2)
+    with kpi1:
+        st.metric("Loan Approval Rate", f"{kpis['Loan Approval Rate']:.2%}")
+    with kpi2:
+        st.metric("Delinquency Rate", f"{kpis['Delinquency Rate']:.2%}")
 
-kpi1, kpi2 = st.columns(2)
-with kpi1:
-    st.metric("Loan Approval Rate", f"{kpis['Loan Approval Rate']:.2%}")
-with kpi2:
-    st.metric("Delinquency Rate", f"{kpis['Delinquency Rate']:.2%}")
+    st.markdown("---")
 
-st.markdown("---")
+    chart_col1, chart_col2 = st.columns(2)
 
-chart_col1, chart_col2 = st.columns(2)
+    with chart_col1:
+        df = pd.read_csv(csv_path)
+        years_importe = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+        years_importe = ["All"] + [str(y) for y in sorted(years_importe)]
+        selected_year_str_importe = st.selectbox(
+            "Select Year for Importe", years_importe, key="importe_year"
+        )
+        selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
+        importe_fig = get_importe_plotly_figure(csv_path, year=selected_year_importe, height=500)
+        importe_fig.update_layout(title_text=f"Total amount per month and monthly average per quarter ({selected_year_importe})")
+        st.plotly_chart(importe_fig, use_container_width=True)
 
-with chart_col1:
+    with chart_col2:
+        df = pd.read_csv(csv_path)
+        years_risk = df['year'].unique().tolist() if 'year' in df.columns else [2024]
+        years_risk = ["All"] + [str(y) for y in sorted(years_risk)]
+        selected_year_str_risk = st.selectbox(
+            "Select Year for Risk", years_risk, key="risk_year"
+        )
+        selected_year_risk = "All" if selected_year_str_risk == "All" else int(selected_year_str_risk)
+        risk_fig = get_risk_plotly_figure(csv_path, year=selected_year_risk, height=500)
+        risk_fig.update_layout(title_text=f"Risk Client Counts and Percentage by Month ({selected_year_risk})")
+        st.plotly_chart(risk_fig, use_container_width=True)
+
+    st.markdown("---")
+
     df = pd.read_csv(csv_path)
-    years_importe = df['year'].unique().tolist() if 'year' in df.columns else [2024]
-    years_importe = ["All"] + [str(y) for y in sorted(years_importe)]
-    selected_year_str_importe = st.selectbox(
-        "Select Year for Importe", years_importe, key="importe_year"
+    af_years = pd.to_datetime(df['fecha_afiliacion']).dt.year
+    min_af_year, max_af_year = int(af_years.min()), int(af_years.max())
+
+    af_year_range = st.session_state.get("af_year_range", (min_af_year, max_af_year))
+
+    account_age_aff_fig = get_account_age_plotly_figure_by_affiliation(csv_path, year_range=af_year_range)
+    account_age_aff_fig.update_layout(
+        title_text="Unique Accounts by Account Age Group (Affiliation Year Filter)"
     )
-    selected_year_importe = "All" if selected_year_str_importe == "All" else int(selected_year_str_importe)
-    importe_fig = get_importe_plotly_figure(csv_path, year=selected_year_importe, height=500)
-    importe_fig.update_layout(title_text=f"Total amount per month and monthly average per quarter ({selected_year_importe})")
-    st.plotly_chart(importe_fig, use_container_width=True)
+    st.plotly_chart(account_age_aff_fig, use_container_width=True)
 
-with chart_col2:
-    df = pd.read_csv(csv_path)
-    years_risk = df['year'].unique().tolist() if 'year' in df.columns else [2024]
-    years_risk = ["All"] + [str(y) for y in sorted(years_risk)]
-    selected_year_str_risk = st.selectbox(
-        "Select Year for Risk", years_risk, key="risk_year"
+    af_year_range = st.slider(
+        "Select Affiliation Year Range",
+        min_af_year,
+        max_af_year,
+        af_year_range,
+        key="af_year_range"
     )
-    selected_year_risk = "All" if selected_year_str_risk == "All" else int(selected_year_str_risk)
-    risk_fig = get_risk_plotly_figure(csv_path, year=selected_year_risk, height=500)
-    risk_fig.update_layout(title_text=f"Risk Client Counts and Percentage by Month ({selected_year_risk})")
-    st.plotly_chart(risk_fig, use_container_width=True)
 
-st.markdown("---")
+    st.markdown("---")
 
-df = pd.read_csv(csv_path)
-af_years = pd.to_datetime(df['fecha_afiliacion']).dt.year
-min_af_year, max_af_year = int(af_years.min()), int(af_years.max())
+    table1, table2, table3 = st.columns(3)
 
-af_year_range = st.session_state.get("af_year_range", (min_af_year, max_af_year))
+    with table1:
+        st.markdown("#### Loan Requests per Quarter")
+        st.table(pd.DataFrame(list(kpis["Loan Requests per Quarter"].items()), columns=["Quarter", "Requests"]))
 
-account_age_aff_fig = get_account_age_plotly_figure_by_affiliation(csv_path, year_range=af_year_range)
-account_age_aff_fig.update_layout(
-    title_text="Unique Accounts by Account Age Group (Affiliation Year Filter)"
-)
-st.plotly_chart(account_age_aff_fig, use_container_width=True)
+    with table2:
+        st.markdown("#### Repayment Rate per Quarter")
+        repayment_df = pd.DataFrame(
+            [(k, f"{v:.2%}") for k, v in kpis["Loan Repayment Rate per Quarter"].items()],
+            columns=["Quarter", "Repayment Rate"]
+        )
+        st.table(repayment_df)
 
-af_year_range = st.slider(
-    "Select Affiliation Year Range",
-    min_af_year,
-    max_af_year,
-    af_year_range,
-    key="af_year_range"
-)
+    with table3:
+        st.markdown("#### Avg Purchase Value by Payment Type")
+        avg_purchase_df = pd.DataFrame(
+            [(k, f"${v:,.2f}") for k, v in kpis["Average Purchase Value by Payment Type"].items()],
+            columns=["Payment Type", "Average Value"]
+        )
+        st.table(avg_purchase_df)
 
-st.markdown("---")
+elif selected == "Acerca de":
+    page1.main()
 
-table1, table2, table3 = st.columns(3)
+elif selected == "User Guide":
+    page2.main()
 
-with table1:
-    st.markdown("#### Loan Requests per Quarter")
-    st.table(pd.DataFrame(list(kpis["Loan Requests per Quarter"].items()), columns=["Quarter", "Requests"]))
-
-with table2:
-    st.markdown("#### Repayment Rate per Quarter")
-    repayment_df = pd.DataFrame(
-        [(k, f"{v:.2%}") for k, v in kpis["Loan Repayment Rate per Quarter"].items()],
-        columns=["Quarter", "Repayment Rate"]
-    )
-    st.table(repayment_df)
-
-with table3:
-    st.markdown("#### Avg Purchase Value by Payment Type")
-    avg_purchase_df = pd.DataFrame(
-        [(k, f"${v:,.2f}") for k, v in kpis["Average Purchase Value by Payment Type"].items()],
-        columns=["Payment Type", "Average Value"]
-    )
-    st.table(avg_purchase_df)
+elif selected == "User Persona Dashboard":
+    page3.main()

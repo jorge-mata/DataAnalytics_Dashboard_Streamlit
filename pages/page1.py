@@ -1,4 +1,4 @@
 import streamlit as st
-
-st.title("Acerca de")
-st.write("This is the first additional page.")
+def main():
+    st.title("Acerca de")
+    st.write("This is the first additional page.")
