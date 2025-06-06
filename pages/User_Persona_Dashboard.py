@@ -60,50 +60,59 @@ def main():
         ever_delinquent_rate=('ever_delinquent', 'mean')
     ).reset_index()
 
-    st.dataframe(risk_summary)
-
+    # Map riskclient values for display
+    riskclient_map = {0: "No Risk", 1: "Risk"}
+    risk_summary['riskclient_label'] = risk_summary['riskclient'].map(riskclient_map)
+    
     # First row of charts with go instead of px
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 1], gap="large")
     with col1:
         colors = ["#824d74", "#be7b72"]
         risk_levels = risk_summary['riskclient'].unique()
         
-        fig = go.Figure()
-        for i, risk in enumerate(risk_levels):
-            df_risk = risk_summary[risk_summary['riskclient'] == risk]
-            fig.add_trace(go.Bar(
-                x=df_risk['riskclient'],
-                y=df_risk['num_loans'],
-                name=str(risk),
-                marker_color=colors[i % len(colors)]
-            ))
-        
+        # Centered, bigger Pie chart for Number of Loans by Risk Level
+        st.markdown("<div style='text-align: center;'><b>Number of Loans by Risk Level</b></div>", unsafe_allow_html=True)
+        fig = go.Figure(go.Pie(
+            labels=risk_summary['riskclient_label'],
+            values=risk_summary['num_loans'],
+            marker=dict(colors=colors),
+            textinfo='percent',
+            textfont=dict(color='white', size=22),
+            insidetextfont=dict(color='white', size=22),
+            hole=0,
+        ))
         fig.update_layout(
-            title='Number of Loans by Risk Level',
-            xaxis_title='Risk Level',
-            yaxis_title='Number of Loans',
-            barmode='group'
+            height=400,
+            width=400,
+            margin=dict(l=0, r=0, t=40, b=0),
+            showlegend=True,
+            legend=dict(font=dict(size=16), orientation="h", y=-0.1, x=0.5, xanchor="center"),
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
-        fig2 = go.Figure()
-        for i, risk in enumerate(risk_levels):
-            df_risk = risk_summary[risk_summary['riskclient'] == risk]
-            fig2.add_trace(go.Bar(
-                x=df_risk['riskclient'],
-                y=df_risk['ever_delinquent_rate'],
-                name=str(risk),
-                marker_color=colors[i % len(colors)]
+        # Gauge for Ever Delinquent Rate (Risk Level 1)
+        risk1_df = risk_summary[risk_summary['riskclient'] == 1]
+        if not risk1_df.empty:
+            risk1_rate = risk1_df['ever_delinquent_rate'].iloc[0] * 100  # as percentage
+            st.markdown("#### Ever Delinquent Rate (Risk Level 1)")
+            fig_gauge = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=risk1_rate,
+                number={'suffix': "%"},
+                gauge={
+                    'axis': {'range': [0, 100]},
+                    'bar': {'color': "#be7b72"},
+                    'steps': [
+                        {'range': [0, 50], 'color': "#f0e6e6"},
+                        {'range': [50, 100], 'color': "#f5cccc"}
+                    ],
+                },
+                title={'text': "Ever Delinquent Rate"}
             ))
-        
-        fig2.update_layout(
-            title='Ever Delinquent Rate by Risk Level',
-            xaxis_title='Risk Level',
-            yaxis_title='Delinquent Rate',
-            barmode='group'
-        )
-        st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig_gauge, use_container_width=True)
+        else:
+            st.info("No data for Risk Level 1 in current filter.")
 
     # Second row of charts - only changing the bar colors
     col3, col4 = st.columns(2)
