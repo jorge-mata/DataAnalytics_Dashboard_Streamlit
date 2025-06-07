@@ -4,3 +4,4 @@ aggregated_dfOld.csv
 README.Docker.md
 .dockerignore
 data/
+/__pycache__
