@@ -117,7 +117,7 @@ if selected == "Dashboard":
 
     account_age_aff_fig = get_account_age_plotly_figure_by_affiliation(csv_path, year_range=af_year_range)
     account_age_aff_fig.update_layout(
-        title_text="Unique Accounts by Account Age Group (Affiliation Year Filter)"
+        title_text="Unique Accounts by Account Age Group"
     )
     st.plotly_chart(account_age_aff_fig, use_container_width=True)
 

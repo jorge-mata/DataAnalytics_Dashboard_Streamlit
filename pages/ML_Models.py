@@ -29,7 +29,6 @@ def main():
             - `quarter`
             - `quarterpercentage`
             - `month`
-            - `num_delinquencies`
             - `ever_delinquent`
             - `most_purchased_category`
             - `medio_pago`
