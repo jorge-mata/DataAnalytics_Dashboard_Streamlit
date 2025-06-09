@@ -48,8 +48,8 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "About Ximple", "User Guide", "Machine Learning", "Risk Management", "Meet Nexus"],
-    icons=["house", "info-circle", "book", "robot", "person", "people"],
+    options=["Dashboard", "About Ximple", "Machine Learning", "Risk Management", "Key Findings", "Meet Nexus"],
+    icons=["house", "info-circle", "robot", "person", "book", "people"],
     orientation="horizontal",
     styles={
         "container": {"padding": "0!important", "background-color": "#483349"},
@@ -121,14 +121,6 @@ if selected == "Dashboard":
     )
     st.plotly_chart(account_age_aff_fig, use_container_width=True)
 
-    af_year_range = st.slider(
-        "Select Affiliation Year Range",
-        min_af_year,
-        max_af_year,
-        af_year_range,
-        key="af_year_range"
-    )
-
     st.markdown("---")
 
     table1, table2, table3 = st.columns(3)
@@ -156,7 +148,7 @@ if selected == "Dashboard":
 elif selected == "About Ximple":
     page1.main()
 
-elif selected == "User Guide":
+elif selected == "Key Findings":
     page2.main()
 
 elif selected == "Risk Management":
