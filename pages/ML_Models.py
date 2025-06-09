@@ -93,10 +93,11 @@ def main():
     }
     st.table(pd.DataFrame(rf_data))
 
-    ROCRF = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "img", "ROCRF.png")
-    )
-    st.image(ROCRF)
+    with st.expander("Show Random Forest ROC Curve"):
+        ROCRF = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "img", "ROCRF.png")
+        )
+        st.image(ROCRF)
 
     st.header("**Logistic Regression**")
     st.write(
@@ -119,11 +120,11 @@ def main():
     }
     st.table(pd.DataFrame(lr_data))
 
-    ROCLR = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "img", "ROCLR.png")
-    )
-    st.image(ROCLR)
-
+    with st.expander("Show Logistic Regression ROC Curve"):
+        ROCLR = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "img", "ROCLR.png")
+        )
+        st.image(ROCLR)
 
     st.header("**XGBoost**")
     st.write(
@@ -145,10 +146,11 @@ def main():
     }
     st.table(pd.DataFrame(xgb_data))
 
-    ROCXG = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "img", "ROCXG.png")
-    )
-    st.image(ROCXG)
+    with st.expander("Show XGBoost ROC Curve"):
+        ROCXG = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "img", "ROCXG.png")
+        )
+        st.image(ROCXG)
 
     st.header("Project Goals")
     st.markdown(
