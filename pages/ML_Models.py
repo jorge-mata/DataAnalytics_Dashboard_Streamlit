@@ -13,6 +13,39 @@ def main():
         """
     )
 
+    with st.expander("See key variables used in the models"):
+        st.write(
+            """
+            The following variables were identified as key features for credit risk prediction and model training:
+            """
+        )
+        st.markdown(
+            """
+            - `loan_request_id`
+            - `external_account_id`
+            - `approved`
+            - `total_importe`
+            - `year`
+            - `quarter`
+            - `quarterpercentage`
+            - `month`
+            - `num_delinquencies`
+            - `ever_delinquent`
+            - `most_purchased_category`
+            - `medio_pago`
+            - `canal`
+            - `riskclient`
+            - `dias_entre_compras`
+            - `delta_importe`
+            - `promedio_cliente`
+            - `temporada_alta_relativa`
+            - `es_temporada_alta_real`
+            - `promedio_temporada_alta`
+            - `temporada_alta_ajustada`
+            - `fecha_afiliacion`
+            """
+        )
+
     # Cards with short explanations
     col1, col2, col3 = st.columns(3)
     with col1:
