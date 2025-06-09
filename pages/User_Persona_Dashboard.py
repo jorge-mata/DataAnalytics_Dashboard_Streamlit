@@ -48,7 +48,19 @@ def main():
             selected_risk = [key for key, value in riskclient_map.items() if value in selected_risk_display]
 
         with col3:
-            category_filter = st.multiselect("Most Purchased Category", df['most_purchased_category'].unique(), default=list(df['most_purchased_category'].unique()))
+            # Remove the "item_" prefix from the 'most_purchased_category' column for display purposes
+            category_display = df['most_purchased_category'].str.replace('item_', '', regex=False).unique()
+            category_mapping = dict(zip(category_display, df['most_purchased_category'].unique()))  # Map cleaned names back to original
+
+            # Display the cleaned category names in the multiselect
+            selected_category_display = st.multiselect(
+                "Most Purchased Category",
+                options=category_display,
+                default=category_display
+            )
+
+            # Reverse map the selected display values back to the original values for filtering
+            category_filter = [category_mapping[display] for display in selected_category_display]
 
     # Apply filters to the DataFrame
     filtered_df = df[df['riskclient'].isin(selected_risk)]
