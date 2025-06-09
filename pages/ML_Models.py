@@ -152,7 +152,9 @@ def main():
         )
         st.image(ROCXG)
 
-    st.header("Project Goals")
+    st.markdown("---")
+
+    st.header("Next Steps")
     st.markdown(
         """
         - **Improve data analysis techniques** to enhance the accuracy of risk models.
