@@ -5,3 +5,4 @@ README.Docker.md
 .dockerignore
 data/
 /__pycache__
+*.pyc
