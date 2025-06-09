@@ -36,18 +36,22 @@ def main():
 
     # Top filters (not sidebar)
     with st.container():
-        col1, col2, col3 = st.columns(3)
+        col1, col3 = st.columns([1, 2])  # Adjust column widths after removing col2
         with col1:
-            risk_levels = sorted(df['riskclient'].unique())
-            selected_risk = st.multiselect("Risk Level", risk_levels, default=risk_levels)
-        with col2:
-            delinquency_filter = st.selectbox("Ever Delinquent", options=["All", True, False], index=0)
+            # Map 0 and 1 to "No Risk" and "Risk" for display purposes
+            riskclient_map = {0: "No Risk", 1: "Risk"}
+            risk_levels = sorted(df['riskclient'].unique())  # Ensure risk_levels contains the original values (0 and 1)
+            risk_levels_display = [riskclient_map[risk] for risk in risk_levels]
+            selected_risk_display = st.multiselect("Risk Level", risk_levels_display, default=risk_levels_display)
+
+            # Reverse map the selected display values back to 0 and 1 for filtering
+            selected_risk = [key for key, value in riskclient_map.items() if value in selected_risk_display]
+
         with col3:
             category_filter = st.multiselect("Most Purchased Category", df['most_purchased_category'].unique(), default=list(df['most_purchased_category'].unique()))
 
+    # Apply filters to the DataFrame
     filtered_df = df[df['riskclient'].isin(selected_risk)]
-    if delinquency_filter != "All":
-        filtered_df = filtered_df[filtered_df['ever_delinquent'] == delinquency_filter]
     if category_filter:
         filtered_df = filtered_df[filtered_df['most_purchased_category'].isin(category_filter)]
 
@@ -60,21 +64,17 @@ def main():
         ever_delinquent_rate=('ever_delinquent', 'mean')
     ).reset_index()
 
-    # Map riskclient values for display
+    # Update the labels for the graphs to display "No Risk" and "Risk"
     riskclient_map = {0: "No Risk", 1: "Risk"}
-    risk_summary['riskclient_label'] = risk_summary['riskclient'].map(riskclient_map)
-    
-    # First row of charts with go instead of px
+
+    # First row of charts
     with st.expander("Risk Profile Overview", expanded=True):
         col1, col2 = st.columns([1, 1], gap="large")
         with col1:
             colors = ["#824d74", "#be7b72"]
-            risk_levels = risk_summary['riskclient'].unique()
-            
-            # Centered, bigger Pie chart for Number of Loans by Risk Level
             st.markdown("<div style='text-align: center;'><b>Number of Loans by Risk Level</b></div>", unsafe_allow_html=True)
             fig = go.Figure(go.Pie(
-                labels=risk_summary['riskclient_label'],
+                labels=risk_summary['riskclient'].map(riskclient_map),  # Map 0/1 to "No Risk"/"Risk"
                 values=risk_summary['num_loans'],
                 marker=dict(colors=colors),
                 textinfo='label+percent',
@@ -92,7 +92,6 @@ def main():
             st.plotly_chart(fig, use_container_width=True)
 
         with col2:
-            # Gauge for Ever Delinquent Rate (Risk Level 1)
             risk1_df = risk_summary[risk_summary['riskclient'] == 1]
             if not risk1_df.empty:
                 risk1_rate = risk1_df['ever_delinquent_rate'].iloc[0] * 100  # as percentage
@@ -115,27 +114,26 @@ def main():
             else:
                 st.info("No data for Risk Level 1 in current filter.")
 
-    # Second row of charts - only changing the bar colors
+    # Second row of charts
     with st.expander("Category and Payment Analysis", expanded=False):
         col3, col4 = st.columns(2)
         with col3:
             st.markdown("#### Most Purchased Category by Risk Level")
             category_by_risk = filtered_df.groupby(['riskclient', 'most_purchased_category']).size().reset_index(name='count')
-            
-            # Get unique categories
-            categories = category_by_risk['most_purchased_category'].unique()
-            
+
+            # Remove the "item_" prefix from the 'most_purchased_category' column for display purposes
+            category_by_risk['most_purchased_category_clean'] = category_by_risk['most_purchased_category'].str.replace('item_', '', regex=False)
+
             fig3 = go.Figure()
-            colors = ["#824d74", "#be7b72"]  # Specified hex colors
             for i, risk in enumerate(risk_levels):
                 df_risk = category_by_risk[category_by_risk['riskclient'] == risk]
                 fig3.add_trace(go.Bar(
-                    x=df_risk['most_purchased_category'],
+                    x=df_risk['most_purchased_category_clean'],  # Use the cleaned category names
                     y=df_risk['count'],
-                    name=str(risk),
-                    marker_color=colors[i % len(colors)]  # Alternating colors
+                    name=riskclient_map[risk],  # Map 0/1 to "No Risk"/"Risk"
+                    marker_color=colors[i % len(colors)]
                 ))
-            
+
             fig3.update_layout(
                 title='Most Purchased Category by Risk Level',
                 xaxis_title='Category',
@@ -148,17 +146,14 @@ def main():
             st.markdown("#### Payment Method by Risk Level")
             payment_method_by_risk = filtered_df.groupby(['riskclient', 'medio_pago']).size().reset_index(name='count')
             
-            # Get unique payment methods
-            payment_methods = payment_method_by_risk['medio_pago'].unique()
-            
             fig4 = go.Figure()
             for i, risk in enumerate(risk_levels):
                 df_risk = payment_method_by_risk[payment_method_by_risk['riskclient'] == risk]
                 fig4.add_trace(go.Bar(
                     x=df_risk['medio_pago'],
                     y=df_risk['count'],
-                    name=str(risk),
-                    marker_color=colors[i % len(colors)]  # Alternating colors
+                    name=riskclient_map[risk],  # Map 0/1 to "No Risk"/"Risk"
+                    marker_color=colors[i % len(colors)]
                 ))
             
             fig4.update_layout(
@@ -180,9 +175,9 @@ def main():
             for i, risk in enumerate(risk_levels):
                 df_risk = tenure_by_risk[tenure_by_risk['riskclient'] == risk]
                 fig5.add_trace(go.Bar(
-                    x=df_risk['riskclient'],
+                    x=[riskclient_map[risk]],  # Map 0/1 to "No Risk"/"Risk"
                     y=df_risk['days_since_affiliation'],
-                    name=str(risk),
+                    name=riskclient_map[risk],  # Map 0/1 to "No Risk"/"Risk"
                     marker_color=colors[i % len(colors)]
                 ))
             
@@ -196,28 +191,31 @@ def main():
 
         with col6:
             st.markdown("#### Seasonality Analysis")
+            # Group by 'riskclient' and 'es_temporada_alta_real' to calculate the required metrics
             seasonality = filtered_df.groupby(['riskclient', 'es_temporada_alta_real']).agg(
                 num_loans=('loan_request_id', 'count'),
                 avg_importe=('total_importe', 'mean'),
                 avg_delinquencies=('num_delinquencies', 'mean')
             ).reset_index()
-            seasonality['temporada'] = seasonality['es_temporada_alta_real'].map({1: 'Alta', 0: 'Baja'})
+            seasonality['seasonality_label'] = seasonality['es_temporada_alta_real'].map({1: 'High', 0: 'Low'})
             
             fig6 = go.Figure()
-            for i, temp in enumerate(['Alta', 'Baja']):
-                df_temp = seasonality[seasonality['temporada'] == temp]
+            for i, season in enumerate(['High', 'Low']):
+                df_season = seasonality[seasonality['seasonality_label'] == season]
                 fig6.add_trace(go.Bar(
-                    x=df_temp['riskclient'],
-                    y=df_temp['num_loans'],
-                    name=temp,
-                    marker_color=colors[i % len(colors)]
+                    x=df_season['riskclient'].map(riskclient_map),  # Map 0/1 to "No Risk"/"Risk"
+                    y=df_season['num_loans'],
+                    name=season,  # Use "High" and "Low" as the legend labels
+                    marker_color=colors[i % len(colors)],
+                    hovertemplate="<b>Risk Level:</b> %{x}<br><b>Seasonality:</b> %{name}<br><b>Number of Loans:</b> %{y}<extra></extra>"  # Custom hover text
                 ))
             
             fig6.update_layout(
-                title='Loans by Risk Level and Season',
+                title='Loans by Risk Level and Seasonality',
                 xaxis_title='Risk Level',
                 yaxis_title='Number of Loans',
-                barmode='group'
+                barmode='group',
+                legend_title_text='Seasonality'
             )
             st.plotly_chart(fig6, use_container_width=True)
 
