@@ -19,31 +19,67 @@ def main():
             The following variables were identified as key features for credit risk prediction and model training:
             """
         )
-        st.markdown(
-            """
-            - `loan_request_id`
-            - `external_account_id`
-            - `approved`
-            - `total_importe`
-            - `year`
-            - `quarter`
-            - `quarterpercentage`
-            - `month`
-            - `ever_delinquent`
-            - `most_purchased_category`
-            - `medio_pago`
-            - `canal`
-            - `riskclient`
-            - `dias_entre_compras`
-            - `delta_importe`
-            - `promedio_cliente`
-            - `temporada_alta_relativa`
-            - `es_temporada_alta_real`
-            - `promedio_temporada_alta`
-            - `temporada_alta_ajustada`
-            - `fecha_afiliacion`
-            """
-        )
+
+        # Create a table with variables and descriptions
+        variables_data = {
+            "Feature": [
+                "loan_request_id",
+                "external_account_id",
+                "approved",
+                "total_importe",
+                "year",
+                "quarter",
+                "quarterpercentage",
+                "month",
+                "ever_delinquent",
+                "most_purchased_category",
+                "medio_pago",
+                "canal",
+                "riskclient",
+                "dias_entre_compras",
+                "delta_importe",
+                "promedio_cliente",
+                "temporada_alta_relativa",
+                "es_temporada_alta_real",
+                "promedio_temporada_alta",
+                "temporada_alta_ajustada",
+                "fecha_afiliacion"
+            ],
+            "Description": [
+                "Unique identifier for the loan request.",
+                "External account identifier for the client.",
+                "Indicates whether the loan was approved (1) or not (0).",
+                "Total amount requested in the loan.",
+                "Year of the loan request.",
+                "Quarter of the year when the loan was requested.",
+                "Percentage of the quarter's total sales.",
+                "Month of the loan request.",
+                "Indicates if the client has ever been delinquent (True/False).",
+                "Category of the most purchased item by the client.",
+                "Payment method used by the client.",
+                "Channel through which the loan was requested.",
+                "Risk classification of the client (0 = No Risk, 1 = Risk).",
+                "Days between consecutive purchases by the client.",
+                "Difference in amounts between consecutive purchases.",
+                "Average amount spent by the client.",
+                "Relative seasonality indicator for high seasons.",
+                "Indicates if the current season is high (1) or low (0).",
+                "Average amount spent during high seasons.",
+                "Adjusted seasonality indicator for high seasons.",
+                "Date when the client was affiliated."
+            ]
+        }
+
+        # Convert to DataFrame
+        df_variables = pd.DataFrame(variables_data)
+
+        # Apply styling to center the table and remove dead space
+        styled_table = df_variables.style.set_table_styles(
+            [{"selector": "th", "props": [("text-align", "center")]}]
+        ).set_properties(**{"text-align": "center", "white-space": "nowrap"})
+
+        # Display the styled table without indices
+        st.dataframe(styled_table.hide(axis="index"), use_container_width=True)
 
     # Cards with short explanations
     col1, col2, col3 = st.columns(3)
@@ -183,8 +219,7 @@ def main():
     st.header("Conclusion")
     st.write(
         """
-        By combining Random Forest, Logistic Regression, and XGBoost, we are building a robust credit risk prediction system for Ximple. 
-        Each model brings unique strengths, and together they provide a strong foundation for accurate and actionable risk assessment.
+        After throughly analysing the three models, we decided that based on the problematic and dataset we were given, we chose the logistic regression model since it was the one to be more suitable, and also gave us a good result in the ROC curve meaning a good performance of the model.
         """
     )
 
