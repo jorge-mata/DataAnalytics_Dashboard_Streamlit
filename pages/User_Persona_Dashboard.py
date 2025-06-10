@@ -136,9 +136,26 @@ def main():
             # Remove the "item_" prefix from the 'most_purchased_category' column for display purposes
             category_by_risk['most_purchased_category_clean'] = category_by_risk['most_purchased_category'].str.replace('item_', '', regex=False)
 
+            # Group categories with counts < 10 for both "Risk" and "No Risk" into "otros"
+            grouped_data = []
+            for category in category_by_risk['most_purchased_category_clean'].unique():
+                category_data = category_by_risk[category_by_risk['most_purchased_category_clean'] == category]
+                risk_counts = category_data.groupby('riskclient')['count'].sum()
+                if all(risk_counts < 10):  # Check if counts for both "Risk" and "No Risk" are < 10
+                    for risk in risk_counts.index:
+                        grouped_data.append({'riskclient': risk, 'most_purchased_category_clean': 'otros', 'count': risk_counts[risk]})
+                else:
+                    grouped_data.extend(category_data.to_dict('records'))
+
+            # Convert grouped data back to a DataFrame
+            category_by_risk_grouped = pd.DataFrame(grouped_data)
+
+            # Aggregate counts for "otros" to ensure it is summed up properly
+            category_by_risk_grouped = category_by_risk_grouped.groupby(['riskclient', 'most_purchased_category_clean'], as_index=False).agg({'count': 'sum'})
+
             fig3 = go.Figure()
             for i, risk in enumerate(risk_levels):
-                df_risk = category_by_risk[category_by_risk['riskclient'] == risk]
+                df_risk = category_by_risk_grouped[category_by_risk_grouped['riskclient'] == risk]
                 fig3.add_trace(go.Bar(
                     x=df_risk['most_purchased_category_clean'],  # Use the cleaned category names
                     y=df_risk['count'],
