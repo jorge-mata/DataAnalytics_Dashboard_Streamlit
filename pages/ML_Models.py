@@ -49,55 +49,29 @@ def main():
     col1, col2, col3 = st.columns(3)
     with col1:
         with st.container(border=True):
-            st.markdown("### Random Forest")
-            st.caption("Ensemble of Decision Trees")
-            st.write(
-                "Random Forest is an ensemble method that builds multiple decision trees and combines their outputs for improved accuracy. It is robust to overfitting and can handle both numerical and categorical variables."
-            )
-    with col2:
-        with st.container(border=True):
             st.markdown("### Logistic Regression")
             st.caption("Probability-Based Classification")
             st.write(
                 "Logistic Regression estimates the probability of a binary outcome, making it suitable for predicting loan repayment. It is interpretable and efficient for high-dimensional data."
             )
-    with col3:
+    with col2:
         with st.container(border=True):
             st.markdown("### XGBoost")
             st.caption("Gradient Boosted Trees")
             st.write(
                 "XGBoost is a powerful boosting algorithm that builds trees sequentially, focusing on correcting errors from previous trees. It is highly effective for complex datasets and handles missing values well."
             )
+    with col3:
+        with st.container(border=True):
+            st.markdown("### Random Forest")
+            st.caption("Ensemble of Decision Trees")
+            st.write(
+                "Random Forest is an ensemble method that builds multiple decision trees and combines their outputs for improved accuracy. It is robust to overfitting and can handle both numerical and categorical variables."
+            )
 
     st.markdown("---")
 
-    # Metrics tables
-    st.header("**Random Forest**")
-    st.write(
-        """
-        These metrics are derived from the Random Forest model's performance across different data splits (80-20, 75-25, 70-30).
-        The following tables summarize the model's precision, recall, F1 score, support, and AUC for each split.
-        Afterwards, we see the ROC curve for the Random Forest model.
-        """
-    )
-
-    st.markdown("**Performance Metrics**")
-    rf_data = {
-        "Split": ["80-20", "75-25", "70-30"],
-        "Precision": ["0.77 / 0.37", "0.79 / 0.48", "0.77 / 0.45"],
-        "Recall": ["0.88 / 0.22", "0.90 / 0.27", "0.91 / 0.21"],
-        "F1 score": ["0.82 / 0.27", "0.84 / 0.34", "0.84 / 0.29"],
-        "Support": ["233 / 79", "291 / 98", "349 / 118"],
-        "AUC": ["0.5658", "0.5758", "0.5900"]
-    }
-    st.table(pd.DataFrame(rf_data))
-
-    with st.expander("Show Random Forest ROC Curve"):
-        ROCRF = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "img", "ROCRF.png")
-        )
-        st.image(ROCRF)
-
+    # Logistic Regression Content
     st.header("**Logistic Regression**")
     st.write(
         """
@@ -125,6 +99,7 @@ def main():
         )
         st.image(ROCLR)
 
+    # XGBoost Content
     st.header("**XGBoost**")
     st.write(
         """
@@ -150,6 +125,33 @@ def main():
             os.path.join(os.path.dirname(__file__), "..", "img", "ROCXG.png")
         )
         st.image(ROCXG)
+
+    # Random Forest Content
+    st.header("**Random Forest**")
+    st.write(
+        """
+        These metrics are derived from the Random Forest model's performance across different data splits (80-20, 75-25, 70-30).
+        The following tables summarize the model's precision, recall, F1 score, support, and AUC for each split.
+        Afterwards, we see the ROC curve for the Random Forest model.
+        """
+    )
+
+    st.markdown("**Performance Metrics**")
+    rf_data = {
+        "Split": ["80-20", "75-25", "70-30"],
+        "Precision": ["0.77 / 0.37", "0.79 / 0.48", "0.77 / 0.45"],
+        "Recall": ["0.88 / 0.22", "0.90 / 0.27", "0.91 / 0.21"],
+        "F1 score": ["0.82 / 0.27", "0.84 / 0.34", "0.84 / 0.29"],
+        "Support": ["233 / 79", "291 / 98", "349 / 118"],
+        "AUC": ["0.5658", "0.5758", "0.5900"]
+    }
+    st.table(pd.DataFrame(rf_data))
+
+    with st.expander("Show Random Forest ROC Curve"):
+        ROCRF = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "img", "ROCRF.png")
+        )
+        st.image(ROCRF)
 
     st.markdown("---")
 
