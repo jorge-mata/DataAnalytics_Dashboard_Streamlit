@@ -107,7 +107,7 @@ def main():
             risk1_df = risk_summary[risk_summary['riskclient'] == 1]
             if not risk1_df.empty:
                 risk1_rate = risk1_df['ever_delinquent_rate'].iloc[0] * 100  # as percentage
-                st.markdown("#### Ever Delinquent Rate (Risk Level 1)")
+                st.markdown("#### Ever Delinquent Rate")
                 fig_gauge = go.Figure(go.Indicator(
                     mode="gauge+number",
                     value=risk1_rate,
@@ -120,7 +120,7 @@ def main():
                             {'range': [50, 100], 'color': "#f5cccc"}
                         ],
                     },
-                    title={'text': "Ever Delinquent Rate"}
+                    title={'text': "Percentage of Payments not Paid"}
                 ))
                 st.plotly_chart(fig_gauge, use_container_width=True)
             else:
