@@ -48,7 +48,7 @@ st.markdown(
 # HEADER NAVIGATION BAR
 selected = option_menu(
     menu_title=None,
-    options=["Dashboard", "About Ximple", "Machine Learning", "Risk Management", "Key Findings", "Meet Nexus"],
+    options=["Dashboard", "About Ximple", "Machine Learning", "Risk Management", "Main Takeaway", "Meet Nexus"],  # Changed "Key Findings" to "Main Takeaway"
     icons=["house", "info-circle", "robot", "person", "book", "people"],
     orientation="horizontal",
     styles={
@@ -67,7 +67,7 @@ if csv_path is None:
     st.stop()
 
 if selected == "Dashboard":
-    st.markdown("## Main KPIs")
+    st.markdown("## Insights Hub")
 
     kpi_json_path = os.path.join(os.path.dirname(__file__), "kpis.json")
     with open(kpi_json_path, "r") as f:
@@ -148,7 +148,7 @@ if selected == "Dashboard":
 elif selected == "About Ximple":
     page1.main()
 
-elif selected == "Key Findings":
+elif selected == "Main Takeaway":  # Updated to match the new name
     page2.main()
 
 elif selected == "Risk Management":
