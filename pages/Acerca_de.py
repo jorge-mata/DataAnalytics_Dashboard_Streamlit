@@ -81,10 +81,10 @@ def main():
         "SCALABILITY & MARKET PENETRATION"
     ]
     card_bodies = [
-        "Ximple, gives entrepreneurs the opportunity to have a loan to achieve their business goals, providing a safe banking service.",
-        "However, it is important to analyze the risk management the company may encounter if the clients don’t repay their loans and credits.",
-        "With this, it is also crucial for the company to analyze the risk and keep growing with a well founded base for their customers and sales to keep growing.",
-        "Once this is well-established, scalability in the market is important for the penetration of the same and be able to keep innovating and stay competitive."
+        "Ximple, gives entrepreneurs the opportunity to have a loan to achieve their business goals, providing a safe banking service. <br> <br>",
+        "It is important to analyze the risk management the company may encounter if the clients don’t repay their loans and credits.",
+        "With this, it is also crucial for the company to analyze the risk and keep growing with a well founded base for their customers and sales to keep growing. <br> <br> ",
+        "Once this is well-established, scalability in the market is important for the penetration of the same and be able to keep innovating and stay competitive. <br> <br>"
     ]
 
     card_cols = st.columns(4, gap="large")
