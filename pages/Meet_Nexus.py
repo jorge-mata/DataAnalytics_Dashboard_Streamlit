@@ -5,10 +5,9 @@ def main():
     st.markdown("<h1 style='text-align: center;'>Meet Nexus</h1>", unsafe_allow_html=True)
     st.markdown(" ")
 
-    team = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "img", "team.png")
-    )
-    st.image(team)
+    # Use a URL for the team image instead of a local file
+    team_url = "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/team.png?raw=true"
+    st.image(team_url)
 
     st.markdown(" ")
     st.markdown(
@@ -19,11 +18,11 @@ def main():
     # 5 columns for team members
     cols = st.columns(5)
     team_files = [
-        ("Andy.jpg", "Andy"),
-        ("Dany.png", "Dany"),
-        ("Emi.png", "Emi"),
-        ("Jorge.png", "Jorge"),
-        ("Luis.png", "Luis"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Andy.jpg?raw=true", "Andy"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Dany.png?raw=true", "Dany"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Emi.png?raw=true", "Emi"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Jorge.png?raw=true", "Jorge"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Luis.png?raw=true", "Luis"),
     ]
 
     # LinkedIn URLs for each team member
@@ -46,18 +45,13 @@ def main():
     </div>
     """
 
-    for col, (filename, name), url in zip(cols, team_files, linkedin_urls):
-        img_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "img", filename)
-        )
-        col.image(img_path, use_container_width=True)
+    for col, (img_url, name), url in zip(cols, team_files, linkedin_urls):
+        col.image(img_url, use_container_width=True)
         col.markdown(linkedin_icon_template.format(url=url), unsafe_allow_html=True)
 
     st.markdown("---")
-    tagline = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "img", "tagline.jpeg")
-    )
-    st.image(tagline)
+    tagline_url = "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/tagline.jpeg?raw=true"
+    st.image(tagline_url)
 
 if __name__ == "__main__":
     main()
