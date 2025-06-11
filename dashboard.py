@@ -189,3 +189,16 @@ elif selected == "Meet Nexus":
 
 elif selected == "Machine Learning":
     page5.main()
+
+# --- Preload Meet Nexus images (hidden) ---
+meet_nexus_imgs = [
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/team.png?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Andy.jpg?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Dany.png?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Emi.png?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Jorge.png?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Luis.png?raw=true",
+    "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/tagline.jpeg?raw=true",
+]
+for url in meet_nexus_imgs:
+    st.markdown(f"<img src='{url}' style='display:none;'>", unsafe_allow_html=True)
