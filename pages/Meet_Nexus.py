@@ -5,9 +5,16 @@ def main():
     st.markdown("<h1 style='text-align: center;'>Meet Nexus</h1>", unsafe_allow_html=True)
     st.markdown(" ")
 
-    # Use a URL for the team image instead of a local file
+    # Center the team image
     team_url = "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/team.png?raw=true"
-    st.image(team_url)
+    st.markdown(
+        f"""
+        <div style='display: flex; justify-content: center;'>
+            <img src="{team_url}" style="max-width: 1300px; width: 100%;" />
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown(" ")
     st.markdown(
@@ -46,13 +53,27 @@ def main():
     """
 
     for col, (img_url, name), url in zip(cols, team_files, linkedin_urls):
-        col.image(img_url, use_container_width=True)
+        col.markdown(
+            f"""
+            <div style='display: flex; justify-content: center;'>
+                <img src="{img_url}" style="width: 100%; max-width: 400px; border-radius: 8px;" />
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         col.markdown(f"<div style='text-align: center; font-weight: bold; margin-top: 8px;'>{name}</div>", unsafe_allow_html=True)
         col.markdown(linkedin_icon_template.format(url=url), unsafe_allow_html=True)
 
     st.markdown("---")
     tagline_url = "https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/tagline.jpeg?raw=true"
-    st.image(tagline_url)
+    st.markdown(
+        f"""
+        <div style='display: flex; justify-content: center;'>
+            <img src="{tagline_url}" style="max-width: 1600px; width: 100%; border-radius: 8px;" />
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 if __name__ == "__main__":
     main()
