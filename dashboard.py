@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 from streamlit_option_menu import option_menu
 from graphImporte import get_importe_plotly_figure
 from graphRisk import get_risk_plotly_figure, get_account_age_plotly_figure_by_affiliation
+import time
 
 # Import your page modules
 from pages import Acerca_de, Key_Findings, User_Persona_Dashboard, Meet_Nexus, ML_Models
@@ -44,6 +45,35 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# --- SPLASH SCREEN ---
+if "splash_shown" not in st.session_state:
+    splash = st.empty()
+    with splash.container():
+        st.markdown(
+            """
+            <style>
+            /* Change progress bar color */
+            .stProgress > div > div > div > div {
+                background-color: #d9ccef !important;
+            }
+            </style>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;">
+                <img src="https://raw.githubusercontent.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/refs/heads/main/NEXUS.png" width="180"/>
+                <h1 style="color:#824d74;text-align:center;">Welcome to NEXUS Dashboard</h1>
+                <p style="font-size:1.2rem;color:#d88876;text-align:center;">Loading, please wait...</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        progress = st.progress(0)
+        for percent in range(1, 101):
+            time.sleep(2/100)  # 2 seconds total
+            progress.progress(percent)
+    splash.empty()
+    st.session_state["splash_shown"] = True
+
+# --- END SPLASH SCREEN ---
 
 # HEADER NAVIGATION BAR
 selected = option_menu(
