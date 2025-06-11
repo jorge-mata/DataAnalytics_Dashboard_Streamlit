@@ -18,11 +18,11 @@ def main():
     # 5 columns for team members
     cols = st.columns(5)
     team_files = [
-        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Andy.jpg?raw=true", "Andy"),
-        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Dany.png?raw=true", "Dany"),
-        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Emi.png?raw=true", "Emi"),
-        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Jorge.png?raw=true", "Jorge"),
-        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Luis.png?raw=true", "Luis"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Andy.jpg?raw=true", "Andrea Alvarado"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Dany.png?raw=true", "Daniela Hernández"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Emi.png?raw=true", "Emiliano Salinas"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Jorge.png?raw=true", "Jorge Mata"),
+        ("https://github.com/jorge-mata/DataAnalytics_Dashboard_Streamlit/blob/main/img/Luis.png?raw=true", "Luis Manzanares"),
     ]
 
     # LinkedIn URLs for each team member
@@ -47,6 +47,7 @@ def main():
 
     for col, (img_url, name), url in zip(cols, team_files, linkedin_urls):
         col.image(img_url, use_container_width=True)
+        col.markdown(f"<div style='text-align: center; font-weight: bold; margin-top: 8px;'>{name}</div>", unsafe_allow_html=True)
         col.markdown(linkedin_icon_template.format(url=url), unsafe_allow_html=True)
 
     st.markdown("---")
