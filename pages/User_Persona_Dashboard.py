@@ -133,39 +133,42 @@ def main():
             st.markdown("#### Most Purchased Category by Risk Level")
             category_by_risk = filtered_df.groupby(['riskclient', 'most_purchased_category']).size().reset_index(name='count')
 
-            # Remove the "item_" prefix from the 'most_purchased_category' column for display purposes
+            # Remove the "item_" prefix and group by the first word before underscore
             category_by_risk['most_purchased_category_clean'] = category_by_risk['most_purchased_category'].str.replace('item_', '', regex=False)
+            category_by_risk['category_group'] = category_by_risk['most_purchased_category_clean'].str.split('_').str[0].str.capitalize()
 
-            # Group categories with counts < 10 for both "Risk" and "No Risk" into "otros"
+            # Group by riskclient and category_group, summing counts
+            grouped = category_by_risk.groupby(['riskclient', 'category_group'], as_index=False)['count'].sum()
+
+            # Group categories with counts < 10 for both "Risk" and "No Risk" into "Otros"
             grouped_data = []
-            for category in category_by_risk['most_purchased_category_clean'].unique():
-                category_data = category_by_risk[category_by_risk['most_purchased_category_clean'] == category]
-                risk_counts = category_data.groupby('riskclient')['count'].sum()
-                if all(risk_counts < 10):  # Check if counts for both "Risk" and "No Risk" are < 10
+            for group in grouped['category_group'].unique():
+                group_data = grouped[grouped['category_group'] == group]
+                risk_counts = group_data.groupby('riskclient')['count'].sum()
+                if all(risk_counts < 10):
                     for risk in risk_counts.index:
-                        grouped_data.append({'riskclient': risk, 'most_purchased_category_clean': 'otros', 'count': risk_counts[risk]})
+                        grouped_data.append({'riskclient': risk, 'category_group': 'Otros', 'count': risk_counts[risk]})
                 else:
-                    grouped_data.extend(category_data.to_dict('records'))
+                    grouped_data.extend(group_data.to_dict('records'))
 
             # Convert grouped data back to a DataFrame
             category_by_risk_grouped = pd.DataFrame(grouped_data)
-
-            # Aggregate counts for "otros" to ensure it is summed up properly
-            category_by_risk_grouped = category_by_risk_grouped.groupby(['riskclient', 'most_purchased_category_clean'], as_index=False).agg({'count': 'sum'})
+            # Aggregate counts for "Otros" to ensure it is summed up properly
+            category_by_risk_grouped = category_by_risk_grouped.groupby(['riskclient', 'category_group'], as_index=False).agg({'count': 'sum'})
 
             fig3 = go.Figure()
             for i, risk in enumerate(risk_levels):
                 df_risk = category_by_risk_grouped[category_by_risk_grouped['riskclient'] == risk]
                 fig3.add_trace(go.Bar(
-                    x=df_risk['most_purchased_category_clean'],  # Use the cleaned category names
+                    x=df_risk['category_group'],
                     y=df_risk['count'],
-                    name=riskclient_map[risk],  # Map 0/1 to "No Risk"/"Risk"
+                    name=riskclient_map[risk],
                     marker_color=colors[i % len(colors)]
                 ))
 
             fig3.update_layout(
                 title='Most Purchased Category by Risk Level',
-                xaxis_title='Category',
+                xaxis_title='Category Group',
                 yaxis_title='Count',
                 barmode='stack'
             )
@@ -174,6 +177,8 @@ def main():
         with col4:
             st.markdown("#### Payment Method by Risk Level")
             payment_method_by_risk = filtered_df.groupby(['riskclient', 'medio_pago']).size().reset_index(name='count')
+            # Capitalize the first letter of each payment method
+            payment_method_by_risk['medio_pago'] = payment_method_by_risk['medio_pago'].astype(str).str.capitalize()
             
             fig4 = go.Figure()
             for i, risk in enumerate(risk_levels):
