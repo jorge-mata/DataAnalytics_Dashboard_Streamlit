@@ -80,7 +80,7 @@ def main():
     riskclient_map = {0: "No Risk", 1: "Risk"}
 
     # First row of charts
-    with st.expander("Risk Profile Overview", expanded=True):
+    with st.expander("Toggle", expanded=True):
         col1, col2 = st.columns([1, 1], gap="large")
         with col1:
             colors = ["#824d74", "#be7b72"]
@@ -127,7 +127,8 @@ def main():
                 st.info("No data for Risk Level 1 in current filter.")
 
     # Second row of charts
-    with st.expander("Category and Payment Analysis", expanded=False):
+    st.markdown("### Category and Payment Analysis")
+    with st.expander("Toggle", expanded=False):
         col3, col4 = st.columns(2)
         with col3:
             st.markdown("#### Most Purchased Category by Risk Level")
@@ -199,7 +200,8 @@ def main():
             st.plotly_chart(fig4, use_container_width=True)
 
     # Third row of charts
-    with st.expander("Tenure and Seasonality", expanded=False):
+    st.markdown("### Tenure and Seasonality Analysis")
+    with st.expander("Toggle", expanded=False):
         col5, col6 = st.columns(2)
         with col5:
             st.markdown("#### Client Tenure vs. Risk")
@@ -255,7 +257,8 @@ def main():
             st.plotly_chart(fig6, use_container_width=True)
 
     # Show filtered raw data in a collapsed expander
-    with st.expander("Raw Data (Filtered)", expanded=False):
+    st.markdown("### Filtered Raw Data")
+    with st.expander("Toggle", expanded=False):
         st.dataframe(filtered_df)
 
 if __name__ == "__main__":
