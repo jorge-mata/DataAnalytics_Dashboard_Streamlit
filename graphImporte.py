@@ -59,9 +59,9 @@ def get_importe_plotly_figure(uploaded_file, year="All", height=500, width=900):
     fig.add_trace(go.Bar(
         x=monthly_group['x'],
         y=monthly_group['total_importe'],
-        name='Importe mensual',
+        name='Monthly total',
         marker_color=color_palette["nx3"],
-        hovertemplate='Trimestre: %{x}<br>Importe: %{y:,.2f}<extra></extra>'
+        hovertemplate='Quarter: %{x}<br>Total: %{y:,.2f}<extra></extra>'
     ))
 
     # Line for quarterly average
@@ -79,20 +79,21 @@ def get_importe_plotly_figure(uploaded_file, year="All", height=500, width=900):
         x=quarter_positions,
         y=quarterly_avg['total_importe'],
         mode='lines+markers',
-        name='Promedio mensual por trimestre',
+        name='Quarterly average (monthly)',
         line=dict(color=color_palette["nx2"], width=3),
         marker=dict(size=10, color=color_palette["nx5"], line=dict(width=2, color=color_palette["nx2"])),
-        hovertemplate='Trimestre: %{x}<br>Promedio: %{y:,.2f}<extra></extra>'
+        hovertemplate='Quarter: %{x}<br>Average: %{y:,.2f}<extra></extra>'
     ))
 
     fig.update_layout(
-        title=f"Importe total por mes y promedio mensual por trimestre ({year})" if year != "All" else "Importe total por mes y promedio mensual por trimestre (Todos los años)",
-        xaxis_title="Trimestre-Mes",
-        yaxis_title="Importe total",
+        title=f"Total by month and monthly average by quarter ({year})" if year != "All" else "Total by month and monthly average by quarter (All years)",
+        xaxis_title="Quarter-Month",
+        yaxis_title="Total Amount",
         barmode='group',
         height=height,
         width=width,
-        plot_bgcolor="#fafafa",
+        plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent outer background
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 

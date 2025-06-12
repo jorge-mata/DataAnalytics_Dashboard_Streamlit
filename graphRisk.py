@@ -88,7 +88,8 @@ def get_risk_plotly_figure(uploaded_file, year="All", height=500, width=900):
         barmode='group',
         height=height,
         width=width,
-        plot_bgcolor="#fafafa",
+        plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent outer background
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
 
@@ -148,7 +149,8 @@ def get_account_age_plotly_figure_by_affiliation(uploaded_file, year_range=None,
         yaxis_title="Unique Accounts",
         height=height,
         width=width,
-        plot_bgcolor="#fafafa"
+        plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+        paper_bgcolor="rgba(0,0,0,0)", # Transparent outer background
     )
 
     return fig

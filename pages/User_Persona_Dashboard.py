@@ -232,11 +232,12 @@ def main():
             for i, season in enumerate(['High', 'Low']):
                 df_season = seasonality[seasonality['seasonality_label'] == season]
                 fig6.add_trace(go.Bar(
-                    x=df_season['riskclient'].map(riskclient_map),  # Map 0/1 to "No Risk"/"Risk"
+                    x=df_season['riskclient'].map(riskclient_map),
                     y=df_season['num_loans'],
-                    name=season,  # Use "High" and "Low" as the legend labels
+                    name=season,
                     marker_color=colors[i % len(colors)],
-                    hovertemplate="<b>Risk Level:</b> %{x}<br><b>Seasonality:</b> %{name}<br><b>Number of Loans:</b> %{y}<extra></extra>"  # Custom hover text
+                    customdata=df_season['seasonality_label'],
+                    hovertemplate="<b>Risk Level:</b> %{x}<br><b>Seasonality:</b> %{customdata}<br><b>Number of Loans:</b> %{y}<extra></extra>"
                 ))
             
             fig6.update_layout(
