@@ -1,5 +1,5 @@
-# Dashboard Link
-https://teamnexus-h0hpaga9ctfcemha.mexicocentral-01.azurewebsites.net/
+# Dashboard Link with Dummy Dataset
+https://nexusteam.streamlit.app/
 
 # Set up Environment
 * Clone/Download Repo
